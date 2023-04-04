@@ -24,12 +24,12 @@ internal class Server {
         }
     }
 
-    // 비동기 방식으로 데이터를 수신하는 메소드
+    // 비동기 방식으로 패킷을 수신하는 메소드
     private async void ReceiveAsync(object? sender) {
         Socket clientSocket = (Socket)sender!;
 
         while (true) {
-            // 헤더(데이터의 크기) 수신하기
+            // 헤더(패킷의 크기) 수신하기
             byte[] headerBuffer = new byte[2];  // 헤더 버퍼
             while (true) {
                 // 헤더 수신
@@ -57,12 +57,13 @@ internal class Server {
                     receivedDataSize += tmp;
                 }
 
-                // 패킷 타입 확인
+                // 패킷의 타입이 로그인 요청 패킷인 경우
                 PacketType packetType = (PacketType)IPAddress.NetworkToHostOrder(BitConverter.ToInt16(dataBuffer));
-                // 로그인 패킷인 경우, ID와 닉네임 출력
                 if (packetType == PacketType.LoginRequest) {
-                    LoginRequestPacket packet = new LoginRequestPacket(dataBuffer);
-                    Console.WriteLine($"id:{packet.Id} nickname:{packet.Nickname}");
+                    LoginRequestPacket packet1 = new LoginRequestPacket(dataBuffer);        // 로그인 요청 패킷 생성(재구성)
+                    LoginResponsePacket packet2 = new LoginResponsePacket(200);             // 로그인 응답 패킷 생성
+                    Console.WriteLine($"id:{packet1.Id} nickname:{packet1.Nickname}");
+                    await clientSocket.SendAsync(packet2.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
                 }
             }
         }

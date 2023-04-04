@@ -15,7 +15,7 @@ public class LoginRequestPacket : IPacket {
         Nickname = nickname;
     }
 
-    // 생성자
+    // 생성자(바이트 배열을 역직렬화하여 ID와 닉네임 저장)
     public LoginRequestPacket(byte[] buffer) {
         int offset = 2;
 
@@ -31,16 +31,12 @@ public class LoginRequestPacket : IPacket {
 
     // 직렬화 메소드(객체를 바이트 배열로 변환)
     public byte[] Serialize() {
-        // 패킷 타입(2바이트)
-        byte[] packetType = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)PacketType.LoginRequest));
-
-        // ID 및 ID의 크기(2바이트)
-        byte[] id = Encoding.UTF8.GetBytes(Id);
-        byte[] idSize = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)id.Length));
-
-        // 닉네임 및 닉네임의 크기(2바이트)
-        byte[] nickname = Encoding.UTF8.GetBytes(Nickname);
-        byte[] nicknameSize = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)nickname.Length));
+        // 직렬화
+        byte[] packetType = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)PacketType.LoginRequest));    // 패킷 타입(2바이트)
+        byte[] id = Encoding.UTF8.GetBytes(Id);                                                                     // ID
+        byte[] idSize = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)id.Length));                      // ID의 크기(2바이트)
+        byte[] nickname = Encoding.UTF8.GetBytes(Nickname);                                                         // 닉네임
+        byte[] nicknameSize = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)nickname.Length));          // 닉네임의 크기(2바이트)
 
         // 첫 2바이트를 제외한 패킷의 전체 크기(2바이트)
         short dataSize = (short)(packetType.Length + id.Length + idSize.Length + nickname.Length + nicknameSize.Length);
@@ -56,6 +52,7 @@ public class LoginRequestPacket : IPacket {
             offset += b.Length;
         }
 
+        // 버퍼 반환
         return buffer;
     }
 }

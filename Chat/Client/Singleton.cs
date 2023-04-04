@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using Core;
 
 namespace Client;
 
@@ -31,11 +32,11 @@ internal class Singleton {
         ThreadPool.QueueUserWorkItem(ReceiveAsync, Socket);     // 스레드풀의 작업 큐에 메소드를 대기시킴
     }
 
-    // 비동기 방식으로 데이터를 수신하는 메소드
+    // 비동기 방식으로 패킷을 수신하는 메소드
     private async void ReceiveAsync(object? sender) {
         Socket socket = (Socket)sender;
 
-        // 헤더(데이터의 크기) 수신하기
+        // 헤더(패킷의 크기) 수신하기
         byte[] headerBuffer = new byte[2];  // 헤더 버퍼
         while (true) {
             // 헤더 수신
@@ -61,6 +62,13 @@ internal class Singleton {
                 int tmp = await socket.ReceiveAsync(new ArraySegment<byte>(dataBuffer, receivedDataSize,
                                                     totalDataSize - receivedDataSize), SocketFlags.None);
                 receivedDataSize += tmp;
+            }
+
+            // 패킷의 타입이 로그인 응답 패킷인 경우
+            PacketType packetType = (PacketType)IPAddress.NetworkToHostOrder(BitConverter.ToInt16(dataBuffer));
+            if (packetType == PacketType.LoginResponse) {
+                LoginResponsePacket packet = new LoginResponsePacket(dataBuffer);       // 로그인 응답 패킷 생성
+                MessageBox.Show(packet.ResponseCode.ToString());
             }
         }
     }
