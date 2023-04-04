@@ -25,7 +25,7 @@ internal class Singleton {
         }
     }
 
-    // 비동기 방식으로 서버와 클라이언트를 연결하는 메소드
+    // 비동기 방식(TAP)으로 서버와 클라이언트를 연결하는 메소드
     public async Task ConnectAsync() {
         // 클라이언트의 연결 요청을 수락함
         await Socket.ConnectAsync(endPoint);
@@ -53,18 +53,18 @@ internal class Singleton {
             else if (receivedHeaderSize == 1) {
                 await socket.ReceiveAsync(new ArraySegment<byte>(headerBuffer, 1, 1), SocketFlags.None);
             }
-        }
 
-        // 데이터 수신하기
-        int receivedDataSize = 0;  // 지금까지 수신한 데이터의 크기
-        short totalDataSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt16(headerBuffer));  // 전체 데이터의 크기
-        byte[] dataBuffer = new byte[totalDataSize];     // 데이터 버퍼
+            // 데이터 수신하기
+            int receivedDataSize = 0;  // 지금까지 수신한 데이터의 크기
+            short totalDataSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt16(headerBuffer));  // 전체 데이터의 크기
+            byte[] dataBuffer = new byte[totalDataSize];     // 데이터 버퍼
 
-        // 데이터 버퍼 내의 모든 데이터 수신하기
-        while (receivedDataSize < totalDataSize) {
-            int tmp = await socket.ReceiveAsync(new ArraySegment<byte>(dataBuffer, receivedDataSize, totalDataSize - receivedDataSize),
-                                                SocketFlags.None);
-            receivedDataSize += tmp;
+            // 데이터 버퍼 내의 모든 데이터 수신하기
+            while (receivedDataSize < totalDataSize) {
+                int tmp = await socket.ReceiveAsync(new ArraySegment<byte>(dataBuffer, receivedDataSize,
+                                                    totalDataSize - receivedDataSize), SocketFlags.None);
+                receivedDataSize += tmp;
+            }
         }
     }
 }
