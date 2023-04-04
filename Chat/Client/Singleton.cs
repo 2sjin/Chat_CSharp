@@ -15,6 +15,16 @@ internal class Singleton {
     public string Nickname { get; set; } = null!;
     public Socket Socket { get; } = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
+    // Singleton 객체
+    private static Singleton? instance;
+    public static Singleton Instance {
+        get {
+            if (instance == null)
+                instance = new Singleton();
+            return Singleton.Instance;
+        }
+    }
+
     // 비동기 방식으로 서버와 클라이언트를 연결하는 메소드
     private async Task ConnectAsync() {
         // 클라이언트의 연결 요청을 수락함
