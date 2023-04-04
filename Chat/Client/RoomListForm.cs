@@ -7,11 +7,11 @@ public partial class RoomListForm : Form {
     public RoomListForm() {
         InitializeComponent();
         Singleton.Instance.CreateRoomResponsed += CreateRoomResponsed;  // 방 생성 응답 이벤트 추가
-        Singleton.Instance.RoomListResponsed += CreateRoomResponsed;    // 방 목록 응답 이벤트 추가
+        Singleton.Instance.RoomListResponsed += RoomListResponsed;    // 방 목록 응답 이벤트 추가
 
         FormClosing += (sender, e) => {
             Singleton.Instance.CreateRoomResponsed -= CreateRoomResponsed;      // 방 생성 응답 이벤트 제거
-            Singleton.Instance.RoomListResponsed -= CreateRoomResponsed;        // 방 목록 응답 이벤트 제거
+            Singleton.Instance.RoomListResponsed -= RoomListResponsed;        // 방 목록 응답 이벤트 제거
         };
 
         // Form이 활성화될 때마다 방 목록 새로고침
