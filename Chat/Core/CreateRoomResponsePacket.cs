@@ -19,9 +19,9 @@ public class CreateRoomResponsePacket : IPacket {
 
     // 직렬화 메소드(객체를 바이트 배열로 변환)
     public byte[] Serialize() {
-        // 직렬화
-        byte[] packetType = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)PacketType.LoginResponse));    // 패킷 타입
-        byte[] responseCode = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(ResponseCode));                     // 응답코드
+        // 직렬화(패킷 타입(2바이트), 응답코드)
+        byte[] packetType = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)PacketType.CreateRoomResponse));
+        byte[] responseCode = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(ResponseCode));
 
         // 첫 2바이트를 제외한 패킷의 전체 크기(2바이트)
         short dataSize = (short)(packetType.Length + responseCode.Length);

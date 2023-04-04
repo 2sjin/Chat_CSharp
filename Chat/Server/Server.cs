@@ -1,4 +1,5 @@
 ﻿using Core;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 
@@ -7,6 +8,7 @@ namespace Server;
 internal class Server {
     // 서버 소켓(IPv4, 연결지향, TCP)
     private Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+    public ConcurrentDictionary<string, Room> RoomsDict { get; } = new ConcurrentDictionary<string, Room>();
 
     // 생성자: 서버 소켓 생성
     public Server(string ip, int port, int backlog) {
@@ -27,6 +29,10 @@ internal class Server {
     // 비동기 방식으로 패킷을 수신하는 메소드
     private async void ReceiveAsync(object? sender) {
         Socket clientSocket = (Socket)sender!;
+
+        string id = "";
+        string nickname = "";
+        string roomName = "";
 
         while (true) {
             // 헤더(패킷의 크기) 수신하기
@@ -58,13 +64,35 @@ internal class Server {
                     receivedDataSize += tmp;
                 }
 
-                // 패킷의 타입이 로그인 요청 패킷인 경우
+                // 패킷의 타입에 따른 동작
                 PacketType packetType = (PacketType)IPAddress.NetworkToHostOrder(BitConverter.ToInt16(dataBuffer));
-                if (packetType == PacketType.LoginRequest) {
-                    LoginRequestPacket packet1 = new LoginRequestPacket(dataBuffer);        // 로그인 요청 패킷 생성(재구성)
-                    LoginResponsePacket packet2 = new LoginResponsePacket(200);             // 로그인 응답 패킷 생성
-                    Console.WriteLine($"id:{packet1.Id} nickname:{packet1.Nickname}");
-                    await clientSocket.SendAsync(packet2.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
+                switch (packetType) {
+                    case PacketType.LoginRequest:   // 로그인 요청 패킷
+                        LoginRequestPacket packet1 = new LoginRequestPacket(dataBuffer);        // 로그인 요청 패킷 생성(재구성)
+                        Console.WriteLine($"id:{packet1.Id} nickname:{packet1.Nickname}");
+                        id = packet1.Id;
+                        nickname = packet1.Nickname;
+
+                        LoginResponsePacket packet2 = new LoginResponsePacket(200);             // 로그인 응답 패킷 생성
+                        await clientSocket.SendAsync(packet2.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
+                        break;
+
+                    case PacketType.CreateRoomRequest:      // 방 생성 요청 패킷
+                        CreateRoomRequestPacket packet3 = new CreateRoomRequestPacket(dataBuffer);   // 방 생성 요청 패킷 생성
+                        Room room = new Room();     // 방 객체 생성
+                        // 딕셔너리에 방 저장
+                        if (RoomsDict.TryAdd(packet3.RoomName, room)) {
+                            roomName = packet3.RoomName;
+                            Console.WriteLine("created room: " + roomName);
+                            CreateRoomResponsePacket packet4 = new CreateRoomResponsePacket(200);   // 방 생성 응답 패킷 생성
+                            await clientSocket.SendAsync(packet4.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
+                        }
+                        else {
+                            Console.WriteLine("created failed");
+                            CreateRoomResponsePacket packet4 = new CreateRoomResponsePacket(500);   // 방 생성 응답 패킷 생성
+                            await clientSocket.SendAsync(packet4.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
+                        }
+                        break;
                 }
             }
         }
