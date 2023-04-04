@@ -26,7 +26,7 @@ internal class Singleton {
     }
 
     // 비동기 방식으로 서버와 클라이언트를 연결하는 메소드
-    private async Task ConnectAsync() {
+    public async Task ConnectAsync() {
         // 클라이언트의 연결 요청을 수락함
         await Socket.ConnectAsync(endPoint);
 

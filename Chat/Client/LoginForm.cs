@@ -12,7 +12,10 @@ namespace Client {
                 return;
             }
 
-            
+            // ·Î±×ÀÎ
+            await Singleton.Instance.ConnectAsync();
+            Singleton.Instance.Id = tbID.Text;
+            Singleton.Instance.Nickname = tbNick.Text;
         }
     }
 }
