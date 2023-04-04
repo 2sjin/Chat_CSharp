@@ -7,11 +7,12 @@ public partial class RoomListForm : Form {
     public RoomListForm() {
         InitializeComponent();
         Singleton.Instance.CreateRoomResponsed += CreateRoomResponsed;  // 방 생성 응답 이벤트 추가
-        Singleton.Instance.RoomListResponsed += RoomListResponsed;    // 방 목록 응답 이벤트 추가
+        Singleton.Instance.RoomListResponsed += RoomListResponsed;      // 방 목록 응답 이벤트 추가
 
         FormClosing += (sender, e) => {
             Singleton.Instance.CreateRoomResponsed -= CreateRoomResponsed;      // 방 생성 응답 이벤트 제거
-            Singleton.Instance.RoomListResponsed -= RoomListResponsed;        // 방 목록 응답 이벤트 제거
+            Singleton.Instance.RoomListResponsed -= RoomListResponsed;          // 방 목록 응답 이벤트 제거
+            Singleton.Instance.Socket.Shutdown(SocketShutdown.Send);            // Send 스트림 연결 종료(Receive는 가능)
         };
 
         // Form이 활성화될 때마다 방 목록 새로고침
@@ -39,10 +40,14 @@ public partial class RoomListForm : Form {
         if (listBoxRooms.SelectedItem == null)
             return;
 
-        // 채팅방 입장
-        ChatRoomForm chatRoom = new ChatRoomForm();
-        chatRoom.Text = listBoxRooms.SelectedItem.ToString();
-        chatRoom.ShowDialog();
+        // 채팅방 Form 생성(비동기식)
+        IAsyncResult ar = null;
+        ar = BeginInvoke(() => {
+            ChatRoomForm chatRoom = new ChatRoomForm();
+            chatRoom.Text = listBoxRooms.SelectedItem.ToString();
+            chatRoom.ShowDialog();
+            EndInvoke(ar);
+        });
     }
 
     // 새로고침 버튼 클릭
@@ -67,10 +72,14 @@ public partial class RoomListForm : Form {
             listBoxRooms.Items.Add(roomName);
             tbRoomName.Text = null;
 
-            // 채팅방 입장
-            ChatRoomForm chatRoom = new ChatRoomForm();
-            chatRoom.Text = roomName;
-            chatRoom.ShowDialog();
+            // 채팅방 Form 생성(비동기식)
+            IAsyncResult ar = null;
+            ar = BeginInvoke(() => {
+                ChatRoomForm chatRoom = new ChatRoomForm();
+                chatRoom.Text = roomName;
+                chatRoom.ShowDialog();
+                EndInvoke(ar);
+            });
         }
 
         // 로그인 실패 패킷을 응답받은 경우
