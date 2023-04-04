@@ -52,7 +52,7 @@ public class LoginRequestPacket : IPacket {
         // 바이트 배열의 정보를 버퍼에 복사
         int offset = 0;
         foreach (byte[] b in new byte[][] { header, packetType, idSize, id, nicknameSize, nickname }) {
-            Array.Copy(header, 0, buffer, offset, b.Length);
+            Array.Copy(b, 0, buffer, offset, b.Length);
             offset += b.Length;
         }
 

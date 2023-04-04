@@ -21,17 +21,14 @@ internal class Singleton {
         get {
             if (instance == null)
                 instance = new Singleton();
-            return Singleton.Instance;
+            return instance;
         }
     }
 
-    // 비동기 방식(TAP)으로 서버와 클라이언트를 연결하는 메소드
+    // 비동기 방식(TAP)으로 서버에 연결을 요청하는 메소드
     public async Task ConnectAsync() {
-        // 클라이언트의 연결 요청을 수락함
-        await Socket.ConnectAsync(endPoint);
-
-        // TAP(작업 기반 비동기 패턴): 스레드풀의 작업 큐에 메소드를 대기시킴
-        ThreadPool.QueueUserWorkItem(ReceiveAsync, Socket);
+        await Socket.ConnectAsync(endPoint);                    // 서버에 연결 요청
+        ThreadPool.QueueUserWorkItem(ReceiveAsync, Socket);     // 스레드풀의 작업 큐에 메소드를 대기시킴
     }
 
     // 비동기 방식으로 데이터를 수신하는 메소드

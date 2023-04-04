@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using Core;
+using System.Net;
 using System.Net.Sockets;
 
 namespace Server;
@@ -17,9 +18,9 @@ internal class Server {
     // 비동기 방식(TAP)으로 클라이언트의 연결을 수락하는 메소드
     public async Task StartAsync() {
         while (true) {
-            Socket clientSocket = await serverSocket.AcceptAsync();
+            Socket clientSocket = await serverSocket.AcceptAsync();     // 클라이언트의 요청 수락
             Console.WriteLine(clientSocket.RemoteEndPoint);
-            ThreadPool.QueueUserWorkItem(ReceiveAsync, clientSocket);
+            ThreadPool.QueueUserWorkItem(ReceiveAsync, clientSocket);   // 스레드풀의 작업 큐에 메소드를 대기시킴
         }
     }
 
@@ -54,6 +55,14 @@ internal class Server {
                     int tmp = await clientSocket.ReceiveAsync(new ArraySegment<byte>(dataBuffer, receivedDataSize,
                                                                 totalDataSize - receivedDataSize), SocketFlags.None);
                     receivedDataSize += tmp;
+                }
+
+                // 패킷 타입 확인
+                PacketType packetType = (PacketType)IPAddress.NetworkToHostOrder(BitConverter.ToInt16(dataBuffer));
+                // 로그인 패킷인 경우, ID와 닉네임 출력
+                if (packetType == PacketType.LoginRequest) {
+                    LoginRequestPacket packet = new LoginRequestPacket(dataBuffer);
+                    Console.WriteLine($"id:{packet.Id} nickname:{packet.Nickname}");
                 }
             }
         }
