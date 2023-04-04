@@ -1,5 +1,5 @@
 ﻿namespace Client {
-    partial class Form1 {
+    partial class LoginForm {
         /// <summary>
         ///  Required designer variable.
         /// </summary>
@@ -95,7 +95,7 @@
             this.btnLogin.UseVisualStyleBackColor = true;
             this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
             // 
-            // Form1
+            // LoginForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;

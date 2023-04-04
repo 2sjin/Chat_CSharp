@@ -15,6 +15,7 @@ internal class Singleton {
     public string Id { get; set; } = null!;
     public string Nickname { get; set; } = null!;
     public Socket Socket { get; } = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+    public event EventHandler<EventArgs>? LoginResponsed;
 
     // Singleton 객체
     private static Singleton? instance;
@@ -68,7 +69,7 @@ internal class Singleton {
             PacketType packetType = (PacketType)IPAddress.NetworkToHostOrder(BitConverter.ToInt16(dataBuffer));
             if (packetType == PacketType.LoginResponse) {
                 LoginResponsePacket packet = new LoginResponsePacket(dataBuffer);       // 로그인 응답 패킷 생성
-                MessageBox.Show(packet.ResponseCode.ToString());
+                LoginResponsed?.Invoke(packet, EventArgs.Empty);    // 로그인 응답 이벤트 호출
             }
         }
     }
