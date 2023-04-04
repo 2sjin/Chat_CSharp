@@ -2,5 +2,7 @@
 
 public enum PacketType {
     LoginRequest,
-    LoginResponse
+    LoginResponse,
+    CreateRoomRequest,
+    CreateRoomResponse
 }
