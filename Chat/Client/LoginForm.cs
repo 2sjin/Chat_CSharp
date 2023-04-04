@@ -7,6 +7,9 @@ public partial class LoginForm : Form {
     public LoginForm() {
         InitializeComponent();                                  // Form 초기화
         Singleton.Instance.LoginResponsed += LoginResponsed;    // 로그인 응답 이벤트 추가
+        FormClosing += (sender, e) => {
+            Singleton.Instance.LoginResponsed -= LoginResponsed;    // 로그인 응답 이벤트 제거
+        };
     }
 
     // [로그인] 버튼 클릭
@@ -28,10 +31,11 @@ public partial class LoginForm : Form {
     // 로그인 응답 이벤트
     private void LoginResponsed(object? sender, EventArgs e) {
         LoginResponsePacket packet = (LoginResponsePacket)sender!;
-        MessageBox.Show(packet.ResponseCode.ToString());
 
-        // 로그인 응답 패킷을 정상적으로 받은 경우
+        // 로그인 성공 패킷을 응답받은 경우
         if (packet.ResponseCode == 200) {
+            MessageBox.Show("로그인 성공 (Code " + packet.ResponseCode.ToString() + ")", this.Text);
+
             // 싱글톤 개체의 ID와 닉네임 값 변경
             Singleton.Instance.Id = tbID.Text;
             Singleton.Instance.Nickname = tbNick.Text;
@@ -39,6 +43,12 @@ public partial class LoginForm : Form {
             // 채팅방 목록 Form 생성
             RoomListForm roomListForm = new RoomListForm();
             roomListForm.ShowDialog();
+        }
+        
+        // 로그인 실패 패킷을 응답받은 경우
+        else {
+            MessageBox.Show("로그인 실패 (Code " + packet.ResponseCode.ToString() + ")", this.Text);
+            Singleton.Instance.Socket.Shutdown(SocketShutdown.Send);    // Send 스트림 연결 종료(Receive는 가능)
         }
     }
 }

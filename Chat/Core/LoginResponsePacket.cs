@@ -21,7 +21,7 @@ public class LoginResponsePacket : IPacket {
     public byte[] Serialize() {
         // 직렬화
         byte[] packetType = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)PacketType.LoginResponse));    // 패킷 타입
-        byte[] responseCode = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(ResponseCode));                    // 응답코드
+        byte[] responseCode = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(ResponseCode));                     // 응답코드
 
         // 첫 2바이트를 제외한 패킷의 전체 크기(2바이트)
         short dataSize = (short)(packetType.Length + responseCode.Length);

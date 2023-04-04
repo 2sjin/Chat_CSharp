@@ -37,7 +37,8 @@ internal class Server {
                 // 수신할 헤더가 없으면 연결 해제
                 if (receivedHeaderSize < 1) {
                     Console.WriteLine("클라이언트 연결 해제됨");
-                    clientSocket.Dispose();
+                    clientSocket.Shutdown(SocketShutdown.Both);     // 스트림 연결 종료(Send 및 Receive 불가)
+                    clientSocket.Dispose();                         // 소켓 자원 해제
                     return;
                 }
                 // 헤더를 1바이트만 수신할 경우 남은 1바이트 수신
