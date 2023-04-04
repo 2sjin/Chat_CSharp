@@ -3,6 +3,7 @@ using System.Net;
 
 namespace Core;
 
+// 인터페이션 구현(로그인 응답 패킷)
 public class LoginResponsePacket : IPacket {
     // 응답코드
     public int ResponseCode { get; private set; }

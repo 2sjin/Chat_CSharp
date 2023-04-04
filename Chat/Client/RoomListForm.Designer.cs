@@ -27,6 +27,7 @@
             this.btnEnter = new System.Windows.Forms.Button();
             this.btnCreate = new System.Windows.Forms.Button();
             this.tbRoomName = new System.Windows.Forms.TextBox();
+            this.btnRefresh = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // listBoxRooms
@@ -65,11 +66,22 @@
             this.tbRoomName.Size = new System.Drawing.Size(257, 27);
             this.tbRoomName.TabIndex = 3;
             // 
+            // btnRefresh
+            // 
+            this.btnRefresh.Location = new System.Drawing.Point(235, 195);
+            this.btnRefresh.Name = "btnRefresh";
+            this.btnRefresh.Size = new System.Drawing.Size(257, 78);
+            this.btnRefresh.TabIndex = 4;
+            this.btnRefresh.Text = "새로고침";
+            this.btnRefresh.UseVisualStyleBackColor = true;
+            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
+            // 
             // RoomListForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(537, 450);
+            this.Controls.Add(this.btnRefresh);
             this.Controls.Add(this.tbRoomName);
             this.Controls.Add(this.btnCreate);
             this.Controls.Add(this.btnEnter);
@@ -88,5 +100,6 @@
         private Button btnEnter;
         private Button btnCreate;
         private TextBox tbRoomName;
+        private Button btnRefresh;
     }
 }

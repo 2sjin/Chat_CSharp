@@ -99,6 +99,12 @@ internal class Server {
                             await clientSocket.SendAsync(packet4.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
                         }
                         break;
+
+                    case PacketType.RoomListRequest:       // 방 목록 요청 패킷
+                        // 방 목록 딕셔너리에서 방 이름들(Keys)만 전달
+                        RoomListResponsePacket packet5 = new RoomListResponsePacket(RoomsDict.Keys);   // 방 생성 응답 패킷 생성
+                        await clientSocket.SendAsync(packet5.Serialize(), SocketFlags.None);            // 클라이언트에 응답 패킷 전송
+                        break;
                 }
             }
         }

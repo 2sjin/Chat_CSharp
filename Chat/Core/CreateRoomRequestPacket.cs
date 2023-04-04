@@ -3,7 +3,7 @@ using System.Net;
 
 namespace Core;
 
-// 인터페이션 구현(로그인 패킷)
+// 인터페이션 구현(방 생성 요청 패킷)
 public class CreateRoomRequestPacket : IPacket {
     // 프로퍼티
     public string RoomName { get; private set; }

@@ -15,8 +15,9 @@ internal class Singleton {
     public string Id { get; set; } = null!;
     public string Nickname { get; set; } = null!;
     public Socket Socket { get; } = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-    public event EventHandler<EventArgs>? LoginResponsed;       // 로그인 성공 시 실행할 이벤트
-    public event EventHandler<EventArgs>? CreateRoomResponsed;  // 방 생성 성공 시 실행할 이벤트
+    public event EventHandler<EventArgs>? LoginResponsed;       // 로그인 성공 시 실행할 이벤트 핸들러
+    public event EventHandler<EventArgs>? CreateRoomResponsed;  // 방 생성 성공 시 실행할 이벤트 핸들러
+    public event EventHandler<EventArgs>? RoomListResponsed;    // 방 목록 새로고침 시 실행할 이벤트 핸들러
 
     // Singleton 객체
     private static Singleton? instance;
@@ -70,13 +71,19 @@ internal class Singleton {
             // 패킷의 타입에 따른 동작
             PacketType packetType = (PacketType)IPAddress.NetworkToHostOrder(BitConverter.ToInt16(dataBuffer));
             switch (packetType) {
-                case PacketType.LoginResponse:           // 로그인 응답 패킷
+                case PacketType.LoginResponse:          // 로그인 응답 패킷
                     LoginResponsePacket packet1 = new LoginResponsePacket(dataBuffer);       // 로그인 응답 패킷 생성
                     LoginResponsed?.Invoke(packet1, EventArgs.Empty);                        // 로그인 응답 이벤트 호출
                     break;
-                case PacketType.CreateRoomResponse:      // 방 생성 응답 패킷
+
+                case PacketType.CreateRoomResponse:     // 방 생성 응답 패킷
                     CreateRoomResponsePacket packet2 = new CreateRoomResponsePacket(dataBuffer);    // 로그인 응답 패킷 생성
                     CreateRoomResponsed?.Invoke(packet2, EventArgs.Empty);                          // 로그인 응답 이벤트 호출
+                    break;
+
+                case PacketType.RoomListResponse:       // 방 목록 응답 패킷
+                    RoomListResponsePacket packet3 = new RoomListResponsePacket(dataBuffer);
+                    RoomListResponsed?.Invoke(packet3, EventArgs.Empty);
                     break;
             }
         }

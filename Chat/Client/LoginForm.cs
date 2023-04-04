@@ -42,7 +42,7 @@ public partial class LoginForm : Form {
 
             // 채팅방 목록 Form 생성(비동기식)
             IAsyncResult ar = null;
-            BeginInvoke(() => {
+            ar = BeginInvoke(() => {
                 RoomListForm roomListForm = new RoomListForm();
                 roomListForm.ShowDialog();
                 EndInvoke(ar);

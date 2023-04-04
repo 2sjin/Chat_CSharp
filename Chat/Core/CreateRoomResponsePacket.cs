@@ -3,6 +3,7 @@ using System.Net;
 
 namespace Core;
 
+// 인터페이션 구현(방 생성 응답 패킷)
 public class CreateRoomResponsePacket : IPacket {
     // 응답코드
     public int ResponseCode { get; private set; }

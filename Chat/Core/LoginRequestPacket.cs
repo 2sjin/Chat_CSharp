@@ -3,7 +3,7 @@ using System.Net;
 
 namespace Core;
 
-// 인터페이션 구현(로그인 패킷)
+// 인터페이션 구현(로그인 요청 패킷)
 public class LoginRequestPacket : IPacket {
     // 프로퍼티
     public string Id { get; private set; }
