@@ -4,7 +4,7 @@ using System.Net;
 namespace Core;
 
 // 인터페이션 구현(로그인 패킷)
-internal class LoginRequestPacket : IPacket {
+public class LoginRequestPacket : IPacket {
     // 프로퍼티
     public string Id { get; private set; }
     public string Nickname { get; private set; }
@@ -13,6 +13,20 @@ internal class LoginRequestPacket : IPacket {
     public LoginRequestPacket(string id, string nickname) {
         Id = id;
         Nickname = nickname;
+    }
+
+    // 생성자
+    public LoginRequestPacket(byte[] buffer) {
+        int offset = 2;
+
+        short idSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt16(buffer, offset));
+        offset += sizeof(short);
+        Id = Encoding.UTF8.GetString(buffer, offset, idSize);
+        offset += idSize;
+
+        short nicknameSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt16(buffer, offset));
+        offset += sizeof(short);
+        Nickname = Encoding.UTF8.GetString(buffer, offset, nicknameSize);
     }
 
     // 직렬화 메소드(객체를 바이트 배열로 변환)

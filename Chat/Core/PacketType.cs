@@ -1,5 +1,5 @@
 ﻿namespace Core;
 
-internal enum PacketType {
+public enum PacketType {
     LoginRequest
 }
