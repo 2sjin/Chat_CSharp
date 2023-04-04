@@ -40,9 +40,13 @@ public partial class LoginForm : Form {
             Singleton.Instance.Id = tbID.Text;
             Singleton.Instance.Nickname = tbNick.Text;
 
-            // 채팅방 목록 Form 생성
-            RoomListForm roomListForm = new RoomListForm();
-            roomListForm.ShowDialog();
+            // 채팅방 목록 Form 생성(비동기식)
+            IAsyncResult ar = null;
+            BeginInvoke(() => {
+                RoomListForm roomListForm = new RoomListForm();
+                roomListForm.ShowDialog();
+                EndInvoke(ar);
+            });
         }
         
         // 로그인 실패 패킷을 응답받은 경우
