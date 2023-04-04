@@ -35,7 +35,7 @@ internal class Singleton {
 
     // 비동기 방식으로 패킷을 수신하는 메소드
     private async void ReceiveAsync(object? sender) {
-        Socket socket = (Socket)sender;
+        Socket socket = (Socket)sender!;
 
         // 헤더(패킷의 크기) 수신하기
         byte[] headerBuffer = new byte[2];  // 헤더 버퍼
