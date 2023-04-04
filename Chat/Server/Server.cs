@@ -8,6 +8,9 @@ namespace Server;
 internal class Server {
     // 서버 소켓(IPv4, 연결지향, TCP)
     private Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+    // 여러 스레드에서 접근 가능한 딕셔너리
+    // Key는 방 이름, Value는 방 객체
     public ConcurrentDictionary<string, Room> RoomsDict { get; } = new ConcurrentDictionary<string, Room>();
 
     // 생성자: 서버 소켓 생성
@@ -80,13 +83,16 @@ internal class Server {
                     case PacketType.CreateRoomRequest:      // 방 생성 요청 패킷
                         CreateRoomRequestPacket packet3 = new CreateRoomRequestPacket(dataBuffer);   // 방 생성 요청 패킷 생성
                         Room room = new Room();     // 방 객체 생성
+
                         // 딕셔너리에 방 저장
                         if (RoomsDict.TryAdd(packet3.RoomName, room)) {
                             roomName = packet3.RoomName;
+                            room.UsersDict.TryAdd(id, nickname);    // 방에 입장한 유저 정보 저장
                             Console.WriteLine("created room: " + roomName);
                             CreateRoomResponsePacket packet4 = new CreateRoomResponsePacket(200);   // 방 생성 응답 패킷 생성
                             await clientSocket.SendAsync(packet4.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
                         }
+
                         else {
                             Console.WriteLine("created failed");
                             CreateRoomResponsePacket packet4 = new CreateRoomResponsePacket(500);   // 방 생성 응답 패킷 생성
