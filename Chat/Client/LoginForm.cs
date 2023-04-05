@@ -43,9 +43,11 @@ public partial class LoginForm : Form {
             // 채팅방 목록 Form 생성(비동기식)
             IAsyncResult? ar = null;
             ar = BeginInvoke(() => {
+                this.Hide();    // 로그인 성공 시, 로그인 Form 숨기기
                 RoomListForm roomListForm = new RoomListForm();
                 roomListForm.ShowDialog();
                 EndInvoke(ar);
+                this.Close();   // 채팅방 목록 Form 종료 시, 숨겨진 로그인 Form도 함께 종료
             });
         }
         
