@@ -67,55 +67,57 @@ internal class Server {
                     receivedDataSize += tmp;
                 }
 
-                // 패킷의 타입에 따른 동작
+                // 패킷 타입 가져오기
                 PacketType packetType = (PacketType)IPAddress.NetworkToHostOrder(BitConverter.ToInt16(dataBuffer));
-                switch (packetType) {
-                    case PacketType.LoginRequest:   // 로그인 요청 패킷
-                        LoginRequestPacket packet1 = new LoginRequestPacket(dataBuffer);        // 로그인 요청 패킷 생성(재구성)
-                        Console.WriteLine($"id:{packet1.Id} nickname:{packet1.Nickname}");
-                        id = packet1.Id;
-                        nickname = packet1.Nickname;
 
-                        LoginResponsePacket packet2 = new LoginResponsePacket(200);             // 로그인 응답 패킷 생성
+                // 패킷 타입: 로그인 요청 패킷
+                if (packetType == PacketType.LoginRequest) {
+                    LoginRequestPacket packet1 = new LoginRequestPacket(dataBuffer);        // 로그인 요청 패킷 생성(재구성)
+                    Console.WriteLine($"id:{packet1.Id} nickname:{packet1.Nickname}");
+                    id = packet1.Id;
+                    nickname = packet1.Nickname;
+
+                    LoginResponsePacket packet2 = new LoginResponsePacket(200);             // 로그인 응답 패킷 생성
+                    await clientSocket.SendAsync(packet2.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
+                }
+                
+                // 패킷 타입: 방 생성 요청 패킷
+                else if (packetType == PacketType.CreateRoomRequest) {
+                    CreateRoomRequestPacket packet1 = new CreateRoomRequestPacket(dataBuffer);   // 방 생성 요청 패킷 생성
+                    Room room = new Room();     // 방 객체 생성
+
+                    // 딕셔너리에 방 저장
+                    if (RoomsDict.TryAdd(packet1.RoomName, room)) {
+                        roomName = packet1.RoomName;
+                        room.UsersDict.TryAdd(id, nickname);    // 방에 입장한 유저 정보 저장
+                        Console.WriteLine("created room: " + roomName);
+                        CreateRoomResponsePacket packet2 = new CreateRoomResponsePacket(200);   // 방 생성 응답 패킷 생성
                         await clientSocket.SendAsync(packet2.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
-                        break;
+                    }
 
-                    case PacketType.CreateRoomRequest:      // 방 생성 요청 패킷
-                        CreateRoomRequestPacket packet3 = new CreateRoomRequestPacket(dataBuffer);   // 방 생성 요청 패킷 생성
-                        Room room = new Room();     // 방 객체 생성
+                    else {
+                        Console.WriteLine("created failed");
+                        CreateRoomResponsePacket packet2 = new CreateRoomResponsePacket(500);   // 방 생성 응답 패킷 생성
+                        await clientSocket.SendAsync(packet2.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
+                    }
+                }
 
-                        // 딕셔너리에 방 저장
-                        if (RoomsDict.TryAdd(packet3.RoomName, room)) {
-                            roomName = packet3.RoomName;
-                            room.UsersDict.TryAdd(id, nickname);    // 방에 입장한 유저 정보 저장
-                            Console.WriteLine("created room: " + roomName);
-                            CreateRoomResponsePacket packet4 = new CreateRoomResponsePacket(200);   // 방 생성 응답 패킷 생성
-                            await clientSocket.SendAsync(packet4.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
-                        }
+                // 패킷 타입: 방 목록 요청 패킷
+                else if (packetType == PacketType.RoomListRequest) {       // 방 목록 요청 패킷
+                    RoomListResponsePacket packet = new RoomListResponsePacket(RoomsDict.Keys);   // 방 목록 응답 패킷 생성
+                    await clientSocket.SendAsync(packet.Serialize(), SocketFlags.None);            // 클라이언트에 응답 패킷 전송
+                }
 
-                        else {
-                            Console.WriteLine("created failed");
-                            CreateRoomResponsePacket packet4 = new CreateRoomResponsePacket(500);   // 방 생성 응답 패킷 생성
-                            await clientSocket.SendAsync(packet4.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
-                        }
-                        break;
-
-                    case PacketType.RoomListRequest:       // 방 목록 요청 패킷
-                        // 방 목록 딕셔너리에서 방 이름들(Keys)만 전달
-                        RoomListResponsePacket packet5 = new RoomListResponsePacket(RoomsDict.Keys);   // 방 목록 응답 패킷 생성
-                        await clientSocket.SendAsync(packet5.Serialize(), SocketFlags.None);            // 클라이언트에 응답 패킷 전송
-                        break;
-
-                    case PacketType.EnterRoomRequest:       // 방 입장 요청 패킷
-                        EnterRoomRequestPacket packet6 = new EnterRoomRequestPacket(dataBuffer);   // 방 입장 요청 패킷 생성
-                        if (RoomsDict.TryGetValue(packet6.RoomName, out var room2)) {
-                            roomName = packet6.RoomName;
-                            room2.UsersDict.TryAdd(id, nickname);
-                            Console.WriteLine($"{roomName} : {nickname} 입장 성공");
-                            EnterRoomResponsePacket packet7 = new EnterRoomResponsePacket(200);     // 방 입장 응답 패킷 생성
-                            await clientSocket.SendAsync(packet6.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
-                        }
-                        break;
+                // 패킷 타입: 방 입장 요청 패킷
+                else if (packetType == PacketType.EnterRoomRequest) {
+                    EnterRoomRequestPacket packet1 = new EnterRoomRequestPacket(dataBuffer);   // 방 입장 요청 패킷 생성
+                    if (RoomsDict.TryGetValue(packet1.RoomName, out var room)) {
+                        roomName = packet1.RoomName;
+                        room.UsersDict.TryAdd(id, nickname);
+                        Console.WriteLine($"{roomName} : {nickname} 입장 성공");
+                        EnterRoomResponsePacket packet2 = new EnterRoomResponsePacket(200);     // 방 입장 응답 패킷 생성
+                        await clientSocket.SendAsync(packet2.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
+                    }
                 }
             }
         }
