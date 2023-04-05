@@ -46,14 +46,14 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(236, 93);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(278, 93);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // label1
             // 
             this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(42, 13);
+            this.label1.Location = new System.Drawing.Point(54, 13);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(24, 20);
             this.label1.TabIndex = 0;
@@ -63,7 +63,7 @@
             // 
             this.label2.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 59);
+            this.label2.Location = new System.Drawing.Point(24, 59);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(54, 20);
             this.label2.TabIndex = 1;
@@ -71,26 +71,26 @@
             // 
             // tbID
             // 
-            this.tbID.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.tbID.Location = new System.Drawing.Point(83, 9);
+            this.tbID.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.tbID.Location = new System.Drawing.Point(104, 9);
             this.tbID.Name = "tbID";
             this.tbID.Size = new System.Drawing.Size(150, 27);
             this.tbID.TabIndex = 2;
             // 
             // tbNick
             // 
-            this.tbNick.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.tbNick.Location = new System.Drawing.Point(83, 56);
+            this.tbNick.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.tbNick.Location = new System.Drawing.Point(104, 56);
             this.tbNick.Name = "tbNick";
             this.tbNick.Size = new System.Drawing.Size(150, 27);
             this.tbNick.TabIndex = 3;
             // 
             // btnLogin
             // 
-            this.btnLogin.Location = new System.Drawing.Point(35, 133);
+            this.btnLogin.Location = new System.Drawing.Point(47, 134);
             this.btnLogin.Name = "btnLogin";
-            this.btnLogin.Size = new System.Drawing.Size(221, 44);
-            this.btnLogin.TabIndex = 1;
+            this.btnLogin.Size = new System.Drawing.Size(230, 44);
+            this.btnLogin.TabIndex = 4;
             this.btnLogin.Text = "로그인";
             this.btnLogin.UseVisualStyleBackColor = true;
             this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
@@ -99,10 +99,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(323, 201);
+            this.ClientSize = new System.Drawing.Size(332, 201);
             this.Controls.Add(this.btnLogin);
             this.Controls.Add(this.tableLayoutPanel1);
-            this.Name = "Form1";
+            this.Name = "LoginForm";
             this.Text = "Client Login";
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();

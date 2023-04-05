@@ -34,7 +34,7 @@ public partial class LoginForm : Form {
 
         // 로그인 성공 패킷을 응답받은 경우
         if (packet.ResponseCode == 200) {
-            MessageBox.Show("로그인 성공 (Code " + packet.ResponseCode.ToString() + ")", this.Text);
+            // MessageBox.Show("로그인 성공 (Code " + packet.ResponseCode.ToString() + ")", this.Text);
 
             // 싱글톤 개체의 ID와 닉네임 값 변경
             Singleton.Instance.Id = tbID.Text;

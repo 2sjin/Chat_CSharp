@@ -26,6 +26,8 @@ namespace Client {
         // 유저 입장 이벤트
         private void UserEnterResponsed(object? sender, EventArgs e) {
             UserEnterPacket packet = (UserEnterPacket)sender!;
+
+            // 리스트박스에 입장한 유저 추가(비동기식)
             IAsyncResult ar = null;
             ar = BeginInvoke(() => {
                 listBoxUsers.Items.Add(packet.Nickname);
@@ -36,6 +38,8 @@ namespace Client {
         // 유저 퇴장 이벤트
         private void UserLeaveResponsed(object? sender, EventArgs e) {
             UserLeavePacket packet = (UserLeavePacket)sender!;
+
+            // 리스트박스에 퇴장한 유저 삭제 새로고침(비동기식)
             IAsyncResult ar = null;
             ar = BeginInvoke(() => {
                 listBoxUsers.Items.Remove(packet.Nickname);
