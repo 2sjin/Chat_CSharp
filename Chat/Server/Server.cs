@@ -127,16 +127,17 @@ internal class Server {
                         // 방 안에 있는 유저 목록 순회
                         await Task.Delay(100);
                         foreach (var user in room.UsersDict) {
-                            // 나 자신한테 나를 추가할 필요는 없음
+                            // 내 클라이언트에 내 정보를 전송할 필요는 없음
                             if (user.Value == nickname)
                                 continue;
-                            // 상대방한테 나를 추가
+
+                            // 상대방 클라이언트에 내 정보 전송
                             if (Clients.TryGetValue(user.Key, out var otherClient)) {
                                 UserEnterPacket packet3 = new UserEnterPacket(nickname);
                                 await otherClient.SendAsync(packet3.Serialize(), SocketFlags.None);
                             }
 
-                            // 나한테 상대방 추가
+                            // 내 클라이언트에 상대방 정보 전송
                             UserEnterPacket packet4 = new UserEnterPacket(user.Value);
                             await clientSocket.SendAsync(packet4.Serialize(), SocketFlags.None);
                         }

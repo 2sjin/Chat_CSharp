@@ -50,15 +50,6 @@ public partial class RoomListForm : Form {
         // 방 입장 요청 패킷을 서버에 전송함
         EnterRoomRequestPacket packet = new EnterRoomRequestPacket(selectedRoomName);      // 패킷 생성
         await Singleton.Instance.Socket.SendAsync(packet.Serialize(), SocketFlags.None);    // 패킷 직렬화 및 전송
-
-        // 채팅방 Form 생성(비동기식)
-        IAsyncResult ar = null;
-        ar = BeginInvoke(() => {
-            ChatRoomForm chatRoom = new ChatRoomForm();
-            chatRoom.Text = selectedRoomName;
-            chatRoom.ShowDialog();
-            EndInvoke(ar);
-        });
     }
 
     // 새로고침 버튼 클릭
@@ -104,10 +95,14 @@ public partial class RoomListForm : Form {
     private void RoomListResponsed(object? sender, EventArgs e) {
         RoomListResponsePacket packet = (RoomListResponsePacket)sender!;
 
-        // 리스트박스 새로고침
-        foreach (var item in packet.RoomNames) {
-            listBoxRooms.Items.Add(item);
-        }
+        IAsyncResult ar = null;
+        ar = BeginInvoke(() => {
+            // 리스트박스 새로고침(비동기식)
+            foreach (var item in packet.RoomNames) {
+                listBoxRooms.Items.Add(item);
+            }
+            EndInvoke(ar);
+        });
     }
 
     // 방 입장 응답 이벤트
@@ -116,13 +111,13 @@ public partial class RoomListForm : Form {
 
         // 방 입장 성공 패킷을 응답받은 경우
         if (packet.ResponseCode == 200) {
-            string roomName = tbRoomName.Text;
+            string? selectedRoomName = listBoxRooms.SelectedItem.ToString();
 
             // 채팅방 입장(채팅방 Form 생성(비동기식))
             IAsyncResult ar = null;
             ar = BeginInvoke(() => {
                 ChatRoomForm chatRoom = new ChatRoomForm();
-                chatRoom.Text = roomName;
+                chatRoom.Text = selectedRoomName;
                 chatRoom.ShowDialog();
                 EndInvoke(ar);
             });

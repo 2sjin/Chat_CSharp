@@ -26,13 +26,21 @@ namespace Client {
         // 유저 입장 이벤트
         private void UserEnterResponsed(object? sender, EventArgs e) {
             UserEnterPacket packet = (UserEnterPacket)sender!;
-            listBoxUsers.Items.Add(packet.Nickname);
+            IAsyncResult ar = null;
+            ar = BeginInvoke(() => {
+                listBoxUsers.Items.Add(packet.Nickname);
+                EndInvoke(ar);
+            });
         }
 
         // 유저 퇴장 이벤트
         private void UserLeaveResponsed(object? sender, EventArgs e) {
             UserLeavePacket packet = (UserLeavePacket)sender!;
-            listBoxUsers.Items.Remove(packet.Nickname);
+            IAsyncResult ar = null;
+            ar = BeginInvoke(() => {
+                listBoxUsers.Items.Remove(packet.Nickname);
+                EndInvoke(ar);
+            });
         }
     }
 }
