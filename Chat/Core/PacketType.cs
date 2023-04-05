@@ -12,5 +12,6 @@ public enum PacketType {
     UserEnter,
     UserLeave,
     Chat,
-    Duplicate
+    Duplicate,
+    Heartbeat
 }

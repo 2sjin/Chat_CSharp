@@ -30,7 +30,7 @@ public partial class RoomListForm : Form {
     private async void btnCreate_Click(object sender, EventArgs e) {
         // 텍스트박스 빈칸 확인
         if (string.IsNullOrEmpty(tbRoomName.Text)) {
-            MessageBox.Show("방 이름을 입력하세요.", this.Text);
+            MessageBox.Show("채팅방 이름을 입력하세요.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
 
@@ -124,7 +124,8 @@ public partial class RoomListForm : Form {
 
         // 방 입장 실패 패킷을 응답받은 경우
         else {
-            MessageBox.Show("방 입장  실패 (Code " + packet.ResponseCode.ToString() + ")", this.Text);
+            MessageBox.Show("방 입장 실패 (Code " + packet.ResponseCode.ToString() + ")", this.Text,
+                             MessageBoxButtons.OK, MessageBoxIcon.Error);
             Singleton.Instance.Socket.Shutdown(SocketShutdown.Send);    // Send 스트림 연결 종료(Receive는 가능)
         }
     }

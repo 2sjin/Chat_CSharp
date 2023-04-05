@@ -3,12 +3,12 @@ using System.Net;
 
 namespace Core;
 
-// 인터페이션 구현(중복 접속 패킷)
-public class DuplicatePacket : IPacket {
+// 인터페이션 구현(Heartbeat 패킷)
+public class HeartbeatPacket : IPacket {
     // 직렬화 메소드(객체를 바이트 배열로 변환)
     public byte[] Serialize() {
         // 직렬화(패킷 타입(2바이트), 방 이름, 방 이름의 크기(2바이트)
-        byte[] packetType = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)PacketType.Duplicate));
+        byte[] packetType = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)PacketType.Heartbeat));
 
         // 첫 2바이트를 제외한 패킷의 전체 크기(2바이트)
         short dataSize = (short)(packetType.Length);

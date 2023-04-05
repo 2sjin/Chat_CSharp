@@ -47,13 +47,25 @@ internal class Singleton {
 
         // 헤더(패킷의 크기) 수신하기
         byte[] headerBuffer = new byte[2];  // 헤더 버퍼
+
+        // 5초(5000ms)마다 Heartbeat 패킷을 날림
+        System.Timers.Timer timer = new System.Timers.Timer(5000);
+        timer.Elapsed += async (sender, e) => {
+            HeartbeatPacket packet = new HeartbeatPacket();                 // Heartbeat 패킷 생성
+            await Socket.SendAsync(packet.Serialize(), SocketFlags.None);   // Heartbeat 패킷 직렬화 및 전송
+        };
+
         try {
             while (true) {
-                // 헤더 수신
+
+                #region 헤더 수신하기
+
                 int receivedHeaderSize = await socket.ReceiveAsync(headerBuffer, SocketFlags.None);
+
                 // 수신할 헤더가 없으면 연결 해제
                 if (receivedHeaderSize < 1) {
                     Console.WriteLine("클라이언트 연결 해제됨");
+                    timer.Dispose();        // Heartbeat 타이머 소멸
                     socket.Shutdown(SocketShutdown.Both);     // 스트림 연결 종료(Send 및 Receive 불가)
                     socket.Dispose();                         // 소켓 자원 해제
                     return;
@@ -62,8 +74,9 @@ internal class Singleton {
                 else if (receivedHeaderSize == 1) {
                     await socket.ReceiveAsync(new ArraySegment<byte>(headerBuffer, 1, 1), SocketFlags.None);
                 }
+                #endregion 헤더 수신하기 끝
 
-                // 데이터 수신하기
+                #region 데이터 수신하기
                 int receivedDataSize = 0;  // 지금까지 수신한 데이터의 크기
                 short totalDataSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt16(headerBuffer));  // 전체 데이터의 크기
                 byte[] dataBuffer = new byte[totalDataSize];     // 데이터 버퍼
@@ -74,6 +87,7 @@ internal class Singleton {
                                                         totalDataSize - receivedDataSize), SocketFlags.None);
                     receivedDataSize += tmp;
                 }
+                #endregion 데이터 수신하기 끝
 
                 // 패킷의 타입에 따른 동작
                 PacketType packetType = (PacketType)IPAddress.NetworkToHostOrder(BitConverter.ToInt16(dataBuffer));
@@ -82,6 +96,7 @@ internal class Singleton {
                     case PacketType.LoginResponse:
                         LoginResponsePacket packet1 = new LoginResponsePacket(dataBuffer);       // 로그인 응답 패킷 생성
                         LoginResponsed?.Invoke(packet1, EventArgs.Empty);                        // 로그인 응답 이벤트 호출
+                        timer.Start();      // Heartbeat 타이머 시작
                         break;
 
                     // 방 생성 응답 패킷

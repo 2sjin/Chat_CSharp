@@ -53,12 +53,28 @@ internal class Server {
                 while (true) {
 
                     #region 헤더 수신하기
-                    int receivedHeaderSize = await clientSocket.ReceiveAsync(headerBuffer, SocketFlags.None);
-                    // 수신할 헤더가 없으면 연결 해제
+                    
+                    // 2개의 Task를 동시에 시작
+                    var t1 = clientSocket.ReceiveAsync(headerBuffer, SocketFlags.None);     // 헤더 수신하기
+                    var t2 = Task.Delay(1000 * 30);     // 30초 대기(비동기)
+
+                    // 2개의 Task 중 먼저 끝난 Task를 반환함
+                    Task taskDoneEarlier = await Task.WhenAny(t1, t2);
+
+                    // 헤더를 수신하지 못하고 30초가 경과하면 연결 해제
+                    if (taskDoneEarlier == t2) {
+                        Console.WriteLine("클라이언트 연결 해제됨");
+                        await RemoveClientSocket(id, nickname, roomName, clientSocket);
+                        return;
+                    }
+
+                    // 수신한 헤더의 크기 저장
+                    int receivedHeaderSize = await t1;
+
+                    // 더 이상 수신할 헤더가 없으면 연결 해제
                     if (receivedHeaderSize < 1) {
                         Console.WriteLine("클라이언트 연결 해제됨");
-                        clientSocket.Shutdown(SocketShutdown.Both);     // 스트림 연결 종//료(Send 및 Receive 불가)
-                        clientSocket.Dispose();                         // 소켓 자원 해제
+                        await RemoveClientSocket(id, nickname, roomName, clientSocket);
                         return;
                     }
                     // 헤더를 1바이트만 수신할 경우 남은 1바이트 수신
