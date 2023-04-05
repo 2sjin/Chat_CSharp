@@ -13,6 +13,9 @@ internal class Server {
     // Key는 방 이름, Value는 방 객체
     public ConcurrentDictionary<string, Room> RoomsDict { get; } = new ConcurrentDictionary<string, Room>();
 
+    // Key는 유저 ID, Value는 소켓
+    public ConcurrentDictionary<string, Socket> Clients{ get; } = new ConcurrentDictionary<string, Socket>();
+
     // 생성자: 서버 소켓 생성
     public Server(string ip, int port, int backlog) {
         IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(ip), port);
@@ -73,6 +76,7 @@ internal class Server {
                 // 패킷 타입: 로그인 요청 패킷
                 if (packetType == PacketType.LoginRequest) {
                     LoginRequestPacket packet1 = new LoginRequestPacket(dataBuffer);        // 로그인 요청 패킷 생성(재구성)
+                    Clients.TryAdd(packet1.Id, clientSocket);
                     Console.WriteLine($"id:{packet1.Id} nickname:{packet1.Nickname}");
                     id = packet1.Id;
                     nickname = packet1.Nickname;
@@ -117,6 +121,23 @@ internal class Server {
                         Console.WriteLine($"{roomName} : {nickname} 입장 성공");
                         EnterRoomResponsePacket packet2 = new EnterRoomResponsePacket(200);     // 방 입장 응답 패킷 생성
                         await clientSocket.SendAsync(packet2.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
+
+                        // 방 안에 있는 유저 목록 순회
+                        await Task.Delay(100);
+                        foreach (var user in room.UsersDict) {
+                            // 나 자산한테 나를 추가할 필요는 없음
+                            if (user.Value == nickname)
+                                continue;
+                            // 상대방한테 나를 추가
+                            if (Clients.TryGetValue(user.Key, out var otherClient)) {
+                                UserEnterPacket packet3 = new UserEnterPacket(nickname);
+                                await otherClient.SendAsync(packet3.Serialize(), SocketFlags.None);
+                            }
+
+                            // 나한테 상대방 추가
+                            UserEnterPacket packet4 = new UserEnterPacket(user.Value);
+                            await clientSocket.SendAsync(packet4.Serialize(), SocketFlags.None);
+                        }
                     }
                 }
             }

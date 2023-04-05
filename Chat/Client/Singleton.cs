@@ -15,10 +15,13 @@ internal class Singleton {
     public string Id { get; set; } = null!;
     public string Nickname { get; set; } = null!;
     public Socket Socket { get; } = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+    // 이벤트 핸들러
     public event EventHandler<EventArgs>? LoginResponsed;       // 로그인 성공 시 실행할 이벤트 핸들러
     public event EventHandler<EventArgs>? CreateRoomResponsed;  // 방 생성 성공 시 실행할 이벤트 핸들러
     public event EventHandler<EventArgs>? RoomListResponsed;    // 방 목록 새로고침 시 실행할 이벤트 핸들러
     public event EventHandler<EventArgs>? EnterRoomResponsed;   // 방 입장 성공 시 실행할 이벤트 핸들러
+    public event EventHandler<EventArgs>? UserEnterResponsed;   // 유저 입장 시 실행할 이벤트 핸들러
 
     // Singleton 객체
     private static Singleton? instance;
@@ -72,24 +75,34 @@ internal class Singleton {
             // 패킷의 타입에 따른 동작
             PacketType packetType = (PacketType)IPAddress.NetworkToHostOrder(BitConverter.ToInt16(dataBuffer));
             switch (packetType) {
-                case PacketType.LoginResponse:          // 로그인 응답 패킷
+                // 로그인 응답 패킷
+                case PacketType.LoginResponse:
                     LoginResponsePacket packet1 = new LoginResponsePacket(dataBuffer);       // 로그인 응답 패킷 생성
                     LoginResponsed?.Invoke(packet1, EventArgs.Empty);                        // 로그인 응답 이벤트 호출
                     break;
 
-                case PacketType.CreateRoomResponse:     // 방 생성 응답 패킷
+                // 방 생성 응답 패킷
+                case PacketType.CreateRoomResponse:
                     CreateRoomResponsePacket packet2 = new CreateRoomResponsePacket(dataBuffer);    // 방 생성 응답 패킷 생성
                     CreateRoomResponsed?.Invoke(packet2, EventArgs.Empty);                          // 방 생성 응답 이벤트 호출
                     break;
 
-                case PacketType.RoomListResponse:       // 방 목록 응답 패킷
+                // 방 목록 응답 패킷
+                case PacketType.RoomListResponse:
                     RoomListResponsePacket packet3 = new RoomListResponsePacket(dataBuffer);        // 방 목록 응답 패킷 생성
                     RoomListResponsed?.Invoke(packet3, EventArgs.Empty);                            // 방 목록 응답 이벤트 호출
                     break;
 
+                // 방 입장 응답 패킷
                 case PacketType.EnterRoomResponse:
                     EnterRoomResponsePacket packet4 = new EnterRoomResponsePacket(dataBuffer);     // 방 입장 응답 패킷 생성
                     EnterRoomResponsed?.Invoke(packet4, EventArgs.Empty);                          // 방 입장 응답 이벤트 호출
+                    break;
+
+                // 유저 입장 패킷
+                case PacketType.UserEnter:
+                    UserEnterPacket packet5 = new UserEnterPacket(dataBuffer);
+                    UserEnterResponsed?.Invoke(packet5, EventArgs.Empty);
                     break;
             }
         }
