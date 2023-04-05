@@ -87,7 +87,15 @@ internal class Server {
                     // 패킷 타입: 로그인 요청 패킷
                     if (packetType == PacketType.LoginRequest) {
                         LoginRequestPacket packet1 = new LoginRequestPacket(dataBuffer);        // 로그인 요청 패킷 생성(재구성)
-                        ClientsDict.TryAdd(packet1.Id, clientSocket);
+
+                        // 클라이언트 딕셔너리에 (ID, 소켓) 추가
+                        // Key(ID)가 이미 존재하는 경우, 덮어쓰기 후 별도의 이벤트 실행
+                        ClientsDict.AddOrUpdate(packet1.Id, clientSocket, (oldKey, oldValue) => {
+                            DuplicatePacket packet = new DuplicatePacket();     // 중복 접속 패킷 생성
+                            oldValue.Send(packet.Serialize());                  // 클라이언트에 중복 접속 패킷 전송
+                            return clientSocket;
+                        });
+
                         Console.WriteLine($"id:{packet1.Id} nickname:{packet1.Nickname}");
                         id = packet1.Id;
                         nickname = packet1.Nickname;
@@ -212,8 +220,10 @@ internal class Server {
 
     // 특정 클라이언트 소켓을 서버에서 제거
     private async Task RemoveClientSocket(string id, string nickname, string roomName, Socket clientSocket) {
+ 
         // 클라이언트 딕셔너리에서 예외가 발생한 클라이언트 삭제
-        ClientsDict.TryRemove(id, out _);
+        if (ClientsDict.TryGetValue(id, out var client) && client == clientSocket)
+            ClientsDict.TryRemove(id, out _);
 
         // 방의 유저 딕셔너리에서 퇴장하는 유저 (ID, 닉네임) 삭제
         if (RoomsDict.TryGetValue(roomName, out var room)) {

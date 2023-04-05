@@ -120,6 +120,13 @@ internal class Singleton {
                         ChatResponsed?.Invoke(packet7, EventArgs.Empty);
                         break;
 
+                    // 중복 접속 패킷
+                    case PacketType.Duplicate:
+                        socket.Shutdown(SocketShutdown.Send);
+                        MessageBox.Show("다른 클라이언트에서 접속을 요청하여 현재 클라이언트를 종료합니다.", "Notice",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        Environment.Exit(0);
+                        break;
                 }
             }
         }
