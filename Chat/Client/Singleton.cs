@@ -47,79 +47,87 @@ internal class Singleton {
 
         // 헤더(패킷의 크기) 수신하기
         byte[] headerBuffer = new byte[2];  // 헤더 버퍼
-        while (true) {
-            // 헤더 수신
-            int receivedHeaderSize = await socket.ReceiveAsync(headerBuffer, SocketFlags.None);
-            // 수신할 헤더가 없으면 연결 해제
-            if (receivedHeaderSize < 1) {
-                Console.WriteLine("클라이언트 연결 해제됨");
-                socket.Shutdown(SocketShutdown.Both);     // 스트림 연결 종료(Send 및 Receive 불가)
-                socket.Dispose();                         // 소켓 자원 해제
-                return;
+        try {
+            while (true) {
+                // 헤더 수신
+                int receivedHeaderSize = await socket.ReceiveAsync(headerBuffer, SocketFlags.None);
+                // 수신할 헤더가 없으면 연결 해제
+                if (receivedHeaderSize < 1) {
+                    Console.WriteLine("클라이언트 연결 해제됨");
+                    socket.Shutdown(SocketShutdown.Both);     // 스트림 연결 종료(Send 및 Receive 불가)
+                    socket.Dispose();                         // 소켓 자원 해제
+                    return;
+                }
+                // 헤더를 1바이트만 수신할 경우 남은 1바이트 수신
+                else if (receivedHeaderSize == 1) {
+                    await socket.ReceiveAsync(new ArraySegment<byte>(headerBuffer, 1, 1), SocketFlags.None);
+                }
+
+                // 데이터 수신하기
+                int receivedDataSize = 0;  // 지금까지 수신한 데이터의 크기
+                short totalDataSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt16(headerBuffer));  // 전체 데이터의 크기
+                byte[] dataBuffer = new byte[totalDataSize];     // 데이터 버퍼
+
+                // 데이터 버퍼 내의 모든 데이터 수신하기
+                while (receivedDataSize < totalDataSize) {
+                    int tmp = await socket.ReceiveAsync(new ArraySegment<byte>(dataBuffer, receivedDataSize,
+                                                        totalDataSize - receivedDataSize), SocketFlags.None);
+                    receivedDataSize += tmp;
+                }
+
+                // 패킷의 타입에 따른 동작
+                PacketType packetType = (PacketType)IPAddress.NetworkToHostOrder(BitConverter.ToInt16(dataBuffer));
+                switch (packetType) {
+                    // 로그인 응답 패킷
+                    case PacketType.LoginResponse:
+                        LoginResponsePacket packet1 = new LoginResponsePacket(dataBuffer);       // 로그인 응답 패킷 생성
+                        LoginResponsed?.Invoke(packet1, EventArgs.Empty);                        // 로그인 응답 이벤트 호출
+                        break;
+
+                    // 방 생성 응답 패킷
+                    case PacketType.CreateRoomResponse:
+                        CreateRoomResponsePacket packet2 = new CreateRoomResponsePacket(dataBuffer);    // 방 생성 응답 패킷 생성
+                        CreateRoomResponsed?.Invoke(packet2, EventArgs.Empty);                          // 방 생성 응답 이벤트 호출
+                        break;
+
+                    // 방 목록 응답 패킷
+                    case PacketType.RoomListResponse:
+                        RoomListResponsePacket packet3 = new RoomListResponsePacket(dataBuffer);        // 방 목록 응답 패킷 생성
+                        RoomListResponsed?.Invoke(packet3, EventArgs.Empty);                            // 방 목록 응답 이벤트 호출
+                        break;
+
+                    // 방 입장 응답 패킷
+                    case PacketType.EnterRoomResponse:
+                        EnterRoomResponsePacket packet4 = new EnterRoomResponsePacket(dataBuffer);     // 방 입장 응답 패킷 생성
+                        EnterRoomResponsed?.Invoke(packet4, EventArgs.Empty);                          // 방 입장 응답 이벤트 호출
+                        break;
+
+                    // 유저 입장 패킷
+                    case PacketType.UserEnter:
+                        UserEnterPacket packet5 = new UserEnterPacket(dataBuffer);
+                        UserEnterResponsed?.Invoke(packet5, EventArgs.Empty);
+                        break;
+
+                    // 유저 퇴장 패킷
+                    case PacketType.UserLeave:
+                        UserLeavePacket packet6 = new UserLeavePacket(dataBuffer);
+                        UserLeaveResponsed?.Invoke(packet6, EventArgs.Empty);
+                        break;
+
+                    // 채팅(메시지 보내기) 패킷
+                    case PacketType.Chat:
+                        ChatPacket packet7 = new ChatPacket(dataBuffer);
+                        ChatResponsed?.Invoke(packet7, EventArgs.Empty);
+                        break;
+
+                }
             }
-            // 헤더를 1바이트만 수신할 경우 남은 1바이트 수신
-            else if (receivedHeaderSize == 1) {
-                await socket.ReceiveAsync(new ArraySegment<byte>(headerBuffer, 1, 1), SocketFlags.None);
-            }
+        }
 
-            // 데이터 수신하기
-            int receivedDataSize = 0;  // 지금까지 수신한 데이터의 크기
-            short totalDataSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt16(headerBuffer));  // 전체 데이터의 크기
-            byte[] dataBuffer = new byte[totalDataSize];     // 데이터 버퍼
-
-            // 데이터 버퍼 내의 모든 데이터 수신하기
-            while (receivedDataSize < totalDataSize) {
-                int tmp = await socket.ReceiveAsync(new ArraySegment<byte>(dataBuffer, receivedDataSize,
-                                                    totalDataSize - receivedDataSize), SocketFlags.None);
-                receivedDataSize += tmp;
-            }
-
-            // 패킷의 타입에 따른 동작
-            PacketType packetType = (PacketType)IPAddress.NetworkToHostOrder(BitConverter.ToInt16(dataBuffer));
-            switch (packetType) {
-                // 로그인 응답 패킷
-                case PacketType.LoginResponse:
-                    LoginResponsePacket packet1 = new LoginResponsePacket(dataBuffer);       // 로그인 응답 패킷 생성
-                    LoginResponsed?.Invoke(packet1, EventArgs.Empty);                        // 로그인 응답 이벤트 호출
-                    break;
-
-                // 방 생성 응답 패킷
-                case PacketType.CreateRoomResponse:
-                    CreateRoomResponsePacket packet2 = new CreateRoomResponsePacket(dataBuffer);    // 방 생성 응답 패킷 생성
-                    CreateRoomResponsed?.Invoke(packet2, EventArgs.Empty);                          // 방 생성 응답 이벤트 호출
-                    break;
-
-                // 방 목록 응답 패킷
-                case PacketType.RoomListResponse:
-                    RoomListResponsePacket packet3 = new RoomListResponsePacket(dataBuffer);        // 방 목록 응답 패킷 생성
-                    RoomListResponsed?.Invoke(packet3, EventArgs.Empty);                            // 방 목록 응답 이벤트 호출
-                    break;
-
-                // 방 입장 응답 패킷
-                case PacketType.EnterRoomResponse:
-                    EnterRoomResponsePacket packet4 = new EnterRoomResponsePacket(dataBuffer);     // 방 입장 응답 패킷 생성
-                    EnterRoomResponsed?.Invoke(packet4, EventArgs.Empty);                          // 방 입장 응답 이벤트 호출
-                    break;
-
-                // 유저 입장 패킷
-                case PacketType.UserEnter:
-                    UserEnterPacket packet5 = new UserEnterPacket(dataBuffer);
-                    UserEnterResponsed?.Invoke(packet5, EventArgs.Empty);
-                    break;
-
-                // 유저 퇴장 패킷
-                case PacketType.UserLeave:
-                    UserLeavePacket packet6 = new UserLeavePacket(dataBuffer);
-                    UserLeaveResponsed?.Invoke(packet6, EventArgs.Empty);
-                    break;
-
-                // 채팅(메시지 보내기) 패킷
-                case PacketType.Chat:
-                    ChatPacket packet7 = new ChatPacket(dataBuffer);
-                    ChatResponsed?.Invoke(packet7, EventArgs.Empty);
-                    break;
-
-            }
+        // 클라이언트 측에서 예외 발생 시, 메시지박스 출력 후 종료
+        catch (Exception e) {
+            MessageBox.Show(e.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Environment.Exit(1);
         }
     }
 }
