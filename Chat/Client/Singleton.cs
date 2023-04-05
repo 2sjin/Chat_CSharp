@@ -23,6 +23,7 @@ internal class Singleton {
     public event EventHandler<EventArgs>? EnterRoomResponsed;   // 방 입장 성공 시 실행할 이벤트 핸들러
     public event EventHandler<EventArgs>? UserEnterResponsed;   // 유저 입장 시 실행할 이벤트 핸들러
     public event EventHandler<EventArgs>? UserLeaveResponsed;   // 유저 퇴장 시 실행할 이벤트 핸들러
+    public event EventHandler<EventArgs>? ChatResponsed;        // 채팅(메시지 보내기) 시 실행할 이벤트 핸들러
 
     // Singleton 객체
     private static Singleton? instance;
@@ -111,6 +112,13 @@ internal class Singleton {
                     UserLeavePacket packet6 = new UserLeavePacket(dataBuffer);
                     UserLeaveResponsed?.Invoke(packet6, EventArgs.Empty);
                     break;
+
+                // 채팅(메시지 보내기) 패킷
+                case PacketType.Chat:
+                    ChatPacket packet7 = new ChatPacket(dataBuffer);
+                    ChatResponsed?.Invoke(packet7, EventArgs.Empty);
+                    break;
+
             }
         }
     }

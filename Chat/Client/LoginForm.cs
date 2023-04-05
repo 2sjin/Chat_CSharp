@@ -41,7 +41,7 @@ public partial class LoginForm : Form {
             Singleton.Instance.Nickname = tbNick.Text;
 
             // 채팅방 목록 Form 생성(비동기식)
-            IAsyncResult ar = null;
+            IAsyncResult? ar = null;
             ar = BeginInvoke(() => {
                 RoomListForm roomListForm = new RoomListForm();
                 roomListForm.ShowDialog();

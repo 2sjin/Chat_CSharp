@@ -13,17 +13,17 @@ public class EnterRoomRequestPacket : IPacket {
         RoomName = roomName;
     }
 
-    // 생성자(바이트 배열을 역직렬화하여 ID와 닉네임 저장)
+    // 생성자(바이트 배열을 역직렬화하여 방 이름 저장)
     public EnterRoomRequestPacket(byte[] buffer) {
         int offset = 2;
-        short idSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt16(buffer, offset));
+        short roomNameSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt16(buffer, offset));
         offset += sizeof(short);
-        RoomName = Encoding.UTF8.GetString(buffer, offset, idSize);
+        RoomName = Encoding.UTF8.GetString(buffer, offset, roomNameSize);
     }
 
     // 직렬화 메소드(객체를 바이트 배열로 변환)
     public byte[] Serialize() {
-        // 직렬화(패킷 타입(2바이트), 방 이름, 방 이름의 크기(2바이트)
+        // 직렬화(패킷 타입(2바이트), 방 이름, 방 이름의 크기(2바이트))
         byte[] packetType = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)PacketType.EnterRoomRequest));
         byte[] roomName = Encoding.UTF8.GetBytes(RoomName);
         byte[] roomNameSize = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)roomName.Length));

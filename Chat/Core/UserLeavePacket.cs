@@ -16,9 +16,9 @@ public class UserLeavePacket : IPacket {
     // 생성자(바이트 배열을 역직렬화하여 닉네임 저장)
     public UserLeavePacket(byte[] buffer) {
         int offset = 2;
-        short idSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt16(buffer, offset));
+        short nicknameSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt16(buffer, offset));
         offset += sizeof(short);
-        Nickname = Encoding.UTF8.GetString(buffer, offset, idSize);
+        Nickname = Encoding.UTF8.GetString(buffer, offset, nicknameSize);
     }
 
     // 직렬화 메소드(객체를 바이트 배열로 변환)

@@ -69,7 +69,7 @@ public partial class RoomListForm : Form {
         // 로그인 성공 패킷을 응답받은 경우
         if (packet.ResponseCode == 200) {
             // 채팅방 Form 생성(비동기식)
-            IAsyncResult ar = null;
+            IAsyncResult? ar = null;
             ar = BeginInvoke(() => {
                 string roomName = tbRoomName.Text;
 
@@ -95,7 +95,7 @@ public partial class RoomListForm : Form {
     private void RoomListResponsed(object? sender, EventArgs e) {
         RoomListResponsePacket packet = (RoomListResponsePacket)sender!;
 
-        IAsyncResult ar = null;
+        IAsyncResult? ar = null;
         ar = BeginInvoke(() => {
             // 리스트박스 새로고침(비동기식)
             foreach (var item in packet.RoomNames) {
@@ -114,7 +114,7 @@ public partial class RoomListForm : Form {
             string? selectedRoomName = listBoxRooms.SelectedItem.ToString();
 
             // 채팅방 입장(채팅방 Form 생성(비동기식))
-            IAsyncResult ar = null;
+            IAsyncResult? ar = null;
             ar = BeginInvoke(() => {
                 ChatRoomForm chatRoom = new ChatRoomForm();
                 chatRoom.Text = selectedRoomName;

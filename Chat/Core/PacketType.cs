@@ -11,4 +11,5 @@ public enum PacketType {
     EnterRoomResponse,
     UserEnter,
     UserLeave,
+    Chat
 }

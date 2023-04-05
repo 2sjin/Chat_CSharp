@@ -14,7 +14,7 @@ internal class Server {
     public ConcurrentDictionary<string, Room> RoomsDict { get; } = new ConcurrentDictionary<string, Room>();
 
     // Key는 유저 ID, Value는 소켓
-    public ConcurrentDictionary<string, Socket> Clients{ get; } = new ConcurrentDictionary<string, Socket>();
+    public ConcurrentDictionary<string, Socket> ClientsDict { get; } = new ConcurrentDictionary<string, Socket>();
 
     // 생성자: 서버 소켓 생성
     public Server(string ip, int port, int backlog) {
@@ -76,7 +76,7 @@ internal class Server {
                 // 패킷 타입: 로그인 요청 패킷
                 if (packetType == PacketType.LoginRequest) {
                     LoginRequestPacket packet1 = new LoginRequestPacket(dataBuffer);        // 로그인 요청 패킷 생성(재구성)
-                    Clients.TryAdd(packet1.Id, clientSocket);
+                    ClientsDict.TryAdd(packet1.Id, clientSocket);
                     Console.WriteLine($"id:{packet1.Id} nickname:{packet1.Nickname}");
                     id = packet1.Id;
                     nickname = packet1.Nickname;
@@ -132,7 +132,7 @@ internal class Server {
                                 continue;
 
                             // 상대방 클라이언트에 내 정보 전송
-                            if (Clients.TryGetValue(user.Key, out var otherClient)) {
+                            if (ClientsDict.TryGetValue(user.Key, out var otherClient)) {
                                 UserEnterPacket packet3 = new UserEnterPacket(nickname);
                                 await otherClient.SendAsync(packet3.Serialize(), SocketFlags.None);
                             }
@@ -161,8 +161,20 @@ internal class Server {
 
                         // 유저가 퇴장했음을 상대방에게 알려줌
                         foreach (var user in room.UsersDict) {
-                            if (Clients.TryGetValue(user.Key, out var otherClient)) {
+                            if (ClientsDict.TryGetValue(user.Key, out var otherClient)) {
                                 await otherClient.SendAsync(packet.Serialize(), SocketFlags.None);
+                            }
+                        }
+                    }
+                }
+
+                // 패킷 타입: 
+                else if (packetType == PacketType.Chat) {
+                    ChatPacket packet = new ChatPacket(dataBuffer);
+                    if (RoomsDict.TryGetValue(roomName, out var room)) {
+                        foreach (var user in room.UsersDict) {
+                            if (ClientsDict.TryGetValue(user.Key, out var client)) {
+                                await client.SendAsync(packet.Serialize(), SocketFlags.None);
                             }
                         }
                     }

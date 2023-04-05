@@ -25,7 +25,7 @@
         private void InitializeComponent() {
             this.tbMessage = new System.Windows.Forms.TextBox();
             this.btnSend = new System.Windows.Forms.Button();
-            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.listBoxMessages = new System.Windows.Forms.ListBox();
             this.listBoxUsers = new System.Windows.Forms.ListBox();
             this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
@@ -45,15 +45,16 @@
             this.btnSend.TabIndex = 1;
             this.btnSend.Text = "전송하기";
             this.btnSend.UseVisualStyleBackColor = true;
+            this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
             // 
-            // listBox1
+            // listBoxMessages
             // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.ItemHeight = 20;
-            this.listBox1.Location = new System.Drawing.Point(23, 27);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(373, 324);
-            this.listBox1.TabIndex = 3;
+            this.listBoxMessages.FormattingEnabled = true;
+            this.listBoxMessages.ItemHeight = 20;
+            this.listBoxMessages.Location = new System.Drawing.Point(23, 27);
+            this.listBoxMessages.Name = "listBoxMessages";
+            this.listBoxMessages.Size = new System.Drawing.Size(373, 324);
+            this.listBoxMessages.TabIndex = 3;
             // 
             // listBoxUsers
             // 
@@ -80,7 +81,7 @@
             this.ClientSize = new System.Drawing.Size(588, 436);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.listBoxUsers);
-            this.Controls.Add(this.listBox1);
+            this.Controls.Add(this.listBoxMessages);
             this.Controls.Add(this.btnSend);
             this.Controls.Add(this.tbMessage);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -95,7 +96,7 @@
 
         private TextBox tbMessage;
         private Button btnSend;
-        private ListBox listBox1;
+        private ListBox listBoxMessages;
         private ListBox listBoxUsers;
         private Label label1;
     }
