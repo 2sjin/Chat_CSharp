@@ -6,5 +6,9 @@ public enum PacketType {
     CreateRoomRequest,
     CreateRoomResponse,
     RoomListRequest,
-    RoomListResponse
+    RoomListResponse,
+    EnterRoomRequest,
+    EnterRoomResponse,
+    UserEnter,
+    UserLeave,
 }

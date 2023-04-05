@@ -102,8 +102,19 @@ internal class Server {
 
                     case PacketType.RoomListRequest:       // 방 목록 요청 패킷
                         // 방 목록 딕셔너리에서 방 이름들(Keys)만 전달
-                        RoomListResponsePacket packet5 = new RoomListResponsePacket(RoomsDict.Keys);   // 방 생성 응답 패킷 생성
+                        RoomListResponsePacket packet5 = new RoomListResponsePacket(RoomsDict.Keys);   // 방 목록 응답 패킷 생성
                         await clientSocket.SendAsync(packet5.Serialize(), SocketFlags.None);            // 클라이언트에 응답 패킷 전송
+                        break;
+
+                    case PacketType.EnterRoomRequest:       // 방 입장 요청 패킷
+                        EnterRoomRequestPacket packet6 = new EnterRoomRequestPacket(dataBuffer);   // 방 입장 요청 패킷 생성
+                        if (RoomsDict.TryGetValue(packet6.RoomName, out var room2)) {
+                            roomName = packet6.RoomName;
+                            room2.UsersDict.TryAdd(id, nickname);
+                            Console.WriteLine($"{roomName} : {nickname} 입장 성공");
+                            EnterRoomResponsePacket packet7 = new EnterRoomResponsePacket(200);     // 방 입장 응답 패킷 생성
+                            await clientSocket.SendAsync(packet6.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
+                        }
                         break;
                 }
             }

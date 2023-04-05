@@ -18,6 +18,7 @@ internal class Singleton {
     public event EventHandler<EventArgs>? LoginResponsed;       // 로그인 성공 시 실행할 이벤트 핸들러
     public event EventHandler<EventArgs>? CreateRoomResponsed;  // 방 생성 성공 시 실행할 이벤트 핸들러
     public event EventHandler<EventArgs>? RoomListResponsed;    // 방 목록 새로고침 시 실행할 이벤트 핸들러
+    public event EventHandler<EventArgs>? EnterRoomResponsed;   // 방 입장 성공 시 실행할 이벤트 핸들러
 
     // Singleton 객체
     private static Singleton? instance;
@@ -77,13 +78,18 @@ internal class Singleton {
                     break;
 
                 case PacketType.CreateRoomResponse:     // 방 생성 응답 패킷
-                    CreateRoomResponsePacket packet2 = new CreateRoomResponsePacket(dataBuffer);    // 로그인 응답 패킷 생성
-                    CreateRoomResponsed?.Invoke(packet2, EventArgs.Empty);                          // 로그인 응답 이벤트 호출
+                    CreateRoomResponsePacket packet2 = new CreateRoomResponsePacket(dataBuffer);    // 방 생성 응답 패킷 생성
+                    CreateRoomResponsed?.Invoke(packet2, EventArgs.Empty);                          // 방 생성 응답 이벤트 호출
                     break;
 
                 case PacketType.RoomListResponse:       // 방 목록 응답 패킷
-                    RoomListResponsePacket packet3 = new RoomListResponsePacket(dataBuffer);
-                    RoomListResponsed?.Invoke(packet3, EventArgs.Empty);
+                    RoomListResponsePacket packet3 = new RoomListResponsePacket(dataBuffer);        // 방 목록 응답 패킷 생성
+                    RoomListResponsed?.Invoke(packet3, EventArgs.Empty);                            // 방 목록 응답 이벤트 호출
+                    break;
+
+                case PacketType.EnterRoomResponse:
+                    EnterRoomResponsePacket packet4 = new EnterRoomResponsePacket(dataBuffer);     // 방 입장 응답 패킷 생성
+                    EnterRoomResponsed?.Invoke(packet4, EventArgs.Empty);                          // 방 입장 응답 이벤트 호출
                     break;
             }
         }
