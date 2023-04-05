@@ -196,13 +196,13 @@ internal class Server {
                 }
             }
 
-            // 소켓 예외 발생 시, 해당 클라이언트 소켓 제거
+            // 서버 측에서 소켓 예외 발생 시, 해당 클라이언트 소켓 제거
             catch (SocketException e) {
                 Console.WriteLine(e);
                 await RemoveClientSocket(id, nickname, roomName, clientSocket);
             }
 
-            // 기타 예외 발생 시, 해당 클라이언트 소켓 제거
+            // 서버 측에서 기타 예외 발생 시, 해당 클라이언트 소켓 제거
             catch (Exception e) {
                 Console.WriteLine(e);
                 await RemoveClientSocket(id, nickname, roomName, clientSocket);

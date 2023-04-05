@@ -41,13 +41,12 @@ public partial class RoomListForm : Form {
 
     // 채팅방 입장하기 버튼 클릭
     private async void btnEnter_Click(object sender, EventArgs e) {
-        string? selectedRoomName = listBoxRooms.SelectedItem.ToString();
-
         // 목록에서 선택된 채팅방이 없으면 리턴
-        if (selectedRoomName == null)
+        if (listBoxRooms.SelectedItem == null)
             return;
 
         // 방 입장 요청 패킷을 서버에 전송함
+        string? selectedRoomName = listBoxRooms.SelectedItem.ToString();
         EnterRoomRequestPacket packet = new EnterRoomRequestPacket(selectedRoomName);      // 패킷 생성
         await Singleton.Instance.Socket.SendAsync(packet.Serialize(), SocketFlags.None);    // 패킷 직렬화 및 전송
     }
