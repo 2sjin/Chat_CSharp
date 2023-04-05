@@ -26,7 +26,7 @@
             this.tbMessage = new System.Windows.Forms.TextBox();
             this.btnSend = new System.Windows.Forms.Button();
             this.listBox1 = new System.Windows.Forms.ListBox();
-            this.listBox2 = new System.Windows.Forms.ListBox();
+            this.listBoxUsers = new System.Windows.Forms.ListBox();
             this.SuspendLayout();
             // 
             // tbMessage
@@ -54,21 +54,21 @@
             this.listBox1.Size = new System.Drawing.Size(373, 324);
             this.listBox1.TabIndex = 2;
             // 
-            // listBox2
+            // listBoxUsers
             // 
-            this.listBox2.FormattingEnabled = true;
-            this.listBox2.ItemHeight = 20;
-            this.listBox2.Location = new System.Drawing.Point(421, 27);
-            this.listBox2.Name = "listBox2";
-            this.listBox2.Size = new System.Drawing.Size(150, 164);
-            this.listBox2.TabIndex = 3;
+            this.listBoxUsers.FormattingEnabled = true;
+            this.listBoxUsers.ItemHeight = 20;
+            this.listBoxUsers.Location = new System.Drawing.Point(421, 27);
+            this.listBoxUsers.Name = "listBoxUsers";
+            this.listBoxUsers.Size = new System.Drawing.Size(150, 164);
+            this.listBoxUsers.TabIndex = 3;
             // 
             // ChatRoomForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(588, 436);
-            this.Controls.Add(this.listBox2);
+            this.Controls.Add(this.listBoxUsers);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.btnSend);
             this.Controls.Add(this.tbMessage);
@@ -85,6 +85,6 @@
         private TextBox tbMessage;
         private Button btnSend;
         private ListBox listBox1;
-        private ListBox listBox2;
+        private ListBox listBoxUsers;
     }
 }

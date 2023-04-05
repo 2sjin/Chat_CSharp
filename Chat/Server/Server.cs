@@ -115,9 +115,11 @@ internal class Server {
                 // 패킷 타입: 방 입장 요청 패킷
                 else if (packetType == PacketType.EnterRoomRequest) {
                     EnterRoomRequestPacket packet1 = new EnterRoomRequestPacket(dataBuffer);   // 방 입장 요청 패킷 생성
+
+                    // 방의 유저 딕셔너리에 입장하는 유저 (ID, 닉네임) 추가
                     if (RoomsDict.TryGetValue(packet1.RoomName, out var room)) {
                         roomName = packet1.RoomName;
-                        room.UsersDict.TryAdd(id, nickname);
+                        room.UsersDict.TryAdd(id, nickname);    // (ID, 닉네임) 추가
                         Console.WriteLine($"{roomName} : {nickname} 입장 성공");
                         EnterRoomResponsePacket packet2 = new EnterRoomResponsePacket(200);     // 방 입장 응답 패킷 생성
                         await clientSocket.SendAsync(packet2.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
@@ -125,7 +127,7 @@ internal class Server {
                         // 방 안에 있는 유저 목록 순회
                         await Task.Delay(100);
                         foreach (var user in room.UsersDict) {
-                            // 나 자산한테 나를 추가할 필요는 없음
+                            // 나 자신한테 나를 추가할 필요는 없음
                             if (user.Value == nickname)
                                 continue;
                             // 상대방한테 나를 추가
@@ -140,6 +142,31 @@ internal class Server {
                         }
                     }
                 }
+
+                // 패킷 타입: 유저 퇴장 패킷
+                else if (packetType == PacketType.UserLeave) {
+                    UserLeavePacket packet = new UserLeavePacket(dataBuffer);               // 방 목록 응답 패킷 생성
+
+                    // 방의 유저 딕셔너리에서 퇴장하는 유저 (ID, 닉네임) 삭제
+                    if (RoomsDict.TryGetValue(roomName, out var room)) {
+                        room.UsersDict.TryRemove(id, out _);
+
+                        // 방에 아무도 없으면 방 삭제
+                        if (room.UsersDict.IsEmpty) {
+                            RoomsDict.TryRemove(roomName, out _);
+                        }
+
+                        roomName = "";
+
+                        // 유저가 퇴장했음을 상대방에게 알려줌
+                        foreach (var user in room.UsersDict) {
+                            if (Clients.TryGetValue(user.Key, out var otherClient)) {
+                                await otherClient.SendAsync(packet.Serialize(), SocketFlags.None);
+                            }
+                        }
+                    }
+                }
+
             }
         }
     }
