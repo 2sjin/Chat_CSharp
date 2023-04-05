@@ -109,7 +109,7 @@ internal class Singleton {
                 // 유저 퇴장 패킷
                 case PacketType.UserLeave:
                     UserLeavePacket packet6 = new UserLeavePacket(dataBuffer);
-                    UserEnterResponsed?.Invoke(packet6, EventArgs.Empty);
+                    UserLeaveResponsed?.Invoke(packet6, EventArgs.Empty);
                     break;
             }
         }

@@ -77,15 +77,15 @@ public partial class RoomListForm : Form {
 
         // 로그인 성공 패킷을 응답받은 경우
         if (packet.ResponseCode == 200) {
-            string roomName = tbRoomName.Text;
-
-            // 리스트박스에 방 추가
-            listBoxRooms.Items.Add(roomName);
-            tbRoomName.Text = null;
-
             // 채팅방 Form 생성(비동기식)
             IAsyncResult ar = null;
             ar = BeginInvoke(() => {
+                string roomName = tbRoomName.Text;
+
+                // 리스트박스에 방 추가
+                listBoxRooms.Items.Add(roomName);
+                tbRoomName.Text = null;
+
                 ChatRoomForm chatRoom = new ChatRoomForm();
                 chatRoom.Text = roomName;
                 chatRoom.ShowDialog();

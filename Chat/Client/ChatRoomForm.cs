@@ -20,9 +20,6 @@ namespace Client {
                 // 유저 퇴장 패킷을 서버에 전송함
                 UserLeavePacket packet = new UserLeavePacket(Singleton.Instance.Nickname);          // 패킷 생성
                 await Singleton.Instance.Socket.SendAsync(packet.Serialize(), SocketFlags.None);    // 패킷 직렬화 및 전송
-
-                // Send 스트림 연결 종료(Receive는 가능)
-                Singleton.Instance.Socket.Shutdown(SocketShutdown.Send);
             };
         }
 
