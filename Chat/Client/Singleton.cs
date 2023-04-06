@@ -64,7 +64,6 @@ internal class Singleton {
 
                 // 수신할 헤더가 없으면 연결 해제
                 if (receivedHeaderSize < 1) {
-                    Console.WriteLine("클라이언트 연결 해제됨");
                     timer.Dispose();        // Heartbeat 타이머 소멸
                     socket.Shutdown(SocketShutdown.Both);     // 스트림 연결 종료(Send 및 Receive 불가)
                     socket.Dispose();                         // 소켓 자원 해제

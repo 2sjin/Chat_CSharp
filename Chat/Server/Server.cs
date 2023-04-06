@@ -28,7 +28,7 @@ internal class Server {
         while (true) {
             try {
                 Socket clientSocket = await serverSocket.AcceptAsync();     // 클라이언트의 요청 수락
-                Console.WriteLine(clientSocket.RemoteEndPoint);
+                PrintLog($"[{clientSocket.RemoteEndPoint}] Connected.");
                 ThreadPool.QueueUserWorkItem(ReceiveAsync, clientSocket);   // 스레드풀의 작업 큐에 메소드를 대기시킴
             }
             catch (SocketException e) {
@@ -63,7 +63,8 @@ internal class Server {
 
                     // 헤더를 수신하지 못하고 30초가 경과하면 연결 해제
                     if (taskDoneEarlier == t2) {
-                        Console.WriteLine("클라이언트 연결 해제됨");
+                        PrintLog($"[{clientSocket.RemoteEndPoint}] Disconnected.");
+                        PrintLog($"[ID: {id}] [Nickname: {nickname}] Logged Out.");
                         await RemoveClientSocket(id, nickname, roomName, clientSocket);
                         return;
                     }
@@ -73,7 +74,8 @@ internal class Server {
 
                     // 더 이상 수신할 헤더가 없으면 연결 해제
                     if (receivedHeaderSize < 1) {
-                        Console.WriteLine("클라이언트 연결 해제됨");
+                        PrintLog($"[{clientSocket.RemoteEndPoint}] Disconnected.");
+                        PrintLog($"[ID: {id}] [Nickname: {nickname}] Logged Out.");
                         await RemoveClientSocket(id, nickname, roomName, clientSocket);
                         return;
                     }
@@ -112,7 +114,7 @@ internal class Server {
                             return clientSocket;
                         });
 
-                        Console.WriteLine($"id:{packet1.Id} nickname:{packet1.Nickname}");
+                        PrintLog($"[ID: {packet1.Id}] [Nickname: {packet1.Nickname}] Logged In.");
                         id = packet1.Id;
                         nickname = packet1.Nickname;
 
@@ -129,13 +131,13 @@ internal class Server {
                         if (RoomsDict.TryAdd(packet1.RoomName, room)) {
                             roomName = packet1.RoomName;
                             room.UsersDict.TryAdd(id, nickname);    // 방에 입장한 유저 정보 저장
-                            Console.WriteLine("created room: " + roomName);
+                            PrintLog($"[{roomName}] {nickname} Created Room.");
                             CreateRoomResponsePacket packet2 = new CreateRoomResponsePacket(200);   // 방 생성 응답 패킷 생성
                             await clientSocket.SendAsync(packet2.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
                         }
 
                         else {
-                            Console.WriteLine("created failed");
+                            PrintLog($"[{roomName}] {nickname} Create Failed...");
                             CreateRoomResponsePacket packet2 = new CreateRoomResponsePacket(500);   // 방 생성 응답 패킷 생성
                             await clientSocket.SendAsync(packet2.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
                         }
@@ -155,7 +157,7 @@ internal class Server {
                         if (RoomsDict.TryGetValue(packet1.RoomName, out var room)) {
                             roomName = packet1.RoomName;
                             room.UsersDict.TryAdd(id, nickname);    // (ID, 닉네임) 추가
-                            Console.WriteLine($"{roomName} : {nickname} 입장 성공");
+                            PrintLog($"[{roomName}] {nickname} Entered Room.");
                             EnterRoomResponsePacket packet2 = new EnterRoomResponsePacket(200);     // 방 입장 응답 패킷 생성
                             await clientSocket.SendAsync(packet2.Serialize(), SocketFlags.None);    // 클라이언트에 응답 패킷 전송
 
@@ -182,6 +184,8 @@ internal class Server {
                     // 패킷 타입: 유저 퇴장 패킷
                     else if (packetType == PacketType.UserLeave) {
                         UserLeavePacket packet = new UserLeavePacket(dataBuffer);   // 유저 퇴장 패킷 생성
+
+                        PrintLog($"[{roomName}] {nickname} Left Room.");
 
                         // 방의 유저 딕셔너리에서 퇴장하는 유저 (ID, 닉네임) 삭제
                         if (RoomsDict.TryGetValue(roomName, out var room)) {
@@ -215,6 +219,8 @@ internal class Server {
                                 }
                             }
                         }
+
+                        PrintLog($"[{roomName}] {packet.Nickname}: {packet.Message}");
                     }
 
                 }
@@ -262,5 +268,11 @@ internal class Server {
 
         // 클라이언트 소켓의 자원 해제
         clientSocket.Dispose();
+    }
+
+    // 로그 출력 메소드(날짜 및 시간 표시)
+    private void PrintLog(string? msg) {
+        string now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        Console.WriteLine($"[{now}] {msg}");
     }
 }
