@@ -4,9 +4,13 @@ using System.Net.Sockets;
 namespace Client;
 
 public partial class RoomListForm : Form {
-    public RoomListForm() {
+    public RoomListForm(string id, string nickname) {
         InitializeComponent();
         
+        // 로그인한 ID와 닉네임 정보 출력
+        lblID.Text = id;
+        lblNickname.Text = nickname;
+
         // 이벤트 핸들러에 메소드 추가
         Singleton.Instance.CreateRoomResponsed += CreateRoomResponsed;  // 방 생성 응답 메소드 추가
         Singleton.Instance.RoomListResponsed += RoomListResponsed;      // 방 목록 응답 메소드 추가

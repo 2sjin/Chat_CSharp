@@ -44,7 +44,7 @@ public partial class LoginForm : Form {
             IAsyncResult? ar = null;
             ar = BeginInvoke(() => {
                 this.Hide();    // 로그인 성공 시, 로그인 Form 숨기기
-                RoomListForm roomListForm = new RoomListForm();
+                RoomListForm roomListForm = new RoomListForm(tbID.Text, tbNick.Text);
                 roomListForm.ShowDialog();
                 EndInvoke(ar);
                 this.Close();   // 채팅방 목록 Form 종료 시, 숨겨진 로그인 Form도 함께 종료
