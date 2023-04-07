@@ -68,15 +68,14 @@ namespace Client {
             // 채팅 메시지 출력(비동기식)
             IAsyncResult? ar = null;
             ar = BeginInvoke(() => {
-                listBoxMessages.Items.Add($"{packet.Nickname}: {packet.Message}");
+                tbMessages.Text += ($"{packet.Nickname}: {packet.Message}\r\n");
                 ScrollToDown();
             });
         }
 
         // 맨 아래로 스크롤 내리기 메소드
         private void ScrollToDown() {
-            listBoxMessages.SelectedIndex = listBoxMessages.Items.Count - 1;
-            listBoxMessages.SelectedIndex = -1;
+
         }
     }
 }
