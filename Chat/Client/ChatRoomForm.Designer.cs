@@ -36,6 +36,7 @@
             this.tbMessage.Name = "tbMessage";
             this.tbMessage.Size = new System.Drawing.Size(373, 27);
             this.tbMessage.TabIndex = 0;
+            this.tbMessage.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbMessage_KeyDown);
             // 
             // btnSend
             // 

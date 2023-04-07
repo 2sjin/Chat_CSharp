@@ -27,6 +27,8 @@ namespace Client {
 
         // 메시지 전송 버튼 클릭
         private async void btnSend_Click(object sender, EventArgs e) {
+            tbMessage.Focus();
+
             // 텍스트박스에 메시지를 입력하지 않았으면 전송하지 않음
             if (string.IsNullOrEmpty(tbMessage.Text))
                 return;
@@ -35,6 +37,14 @@ namespace Client {
             ChatPacket packet = new ChatPacket(Singleton.Instance.Nickname, tbMessage.Text);    // 패킷 생성
             await Singleton.Instance.Socket.SendAsync(packet.Serialize(), SocketFlags.None);    // 패킷 직렬화 및 전송
             tbMessage.Text = null;
+        }
+
+        // [Enter] 키를 눌렀을 때 메시지 전송
+        private void tbMessage_KeyDown(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Enter) {
+                btnSend_Click(sender, EventArgs.Empty);
+                e.SuppressKeyPress = true;  // 이벤트 처리 완료(키 입력 시 ding 사운드가 재생되는 것을 방지)
+            }
         }
 
         // 유저 입장 이벤트
