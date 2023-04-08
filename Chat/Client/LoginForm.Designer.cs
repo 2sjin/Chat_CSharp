@@ -76,6 +76,7 @@
             this.tbID.Name = "tbID";
             this.tbID.Size = new System.Drawing.Size(150, 27);
             this.tbID.TabIndex = 2;
+            this.tbID.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbID_KeyDown);
             // 
             // tbNick
             // 
@@ -84,6 +85,7 @@
             this.tbNick.Name = "tbNick";
             this.tbNick.Size = new System.Drawing.Size(150, 27);
             this.tbNick.TabIndex = 3;
+            this.tbNick.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbNick_KeyDown);
             // 
             // btnLogin
             // 

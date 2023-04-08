@@ -12,6 +12,22 @@ public partial class LoginForm : Form {
         };
     }
 
+    // [Enter] 키를 눌렀을 때 이벤트(=로그인 버튼 클릭)
+    private void tbID_KeyDown(object sender, KeyEventArgs e) {
+        if (e.KeyCode == Keys.Enter) {
+            btnLogin_Click(sender, EventArgs.Empty);
+            e.SuppressKeyPress = true;  // 이벤트 처리 완료(키 입력 시 ding 사운드가 재생되는 것을 방지)
+        }
+    }
+
+    // [Enter] 키를 눌렀을 때 이벤트(=로그인 버튼 클릭)
+    private void tbNick_KeyDown(object sender, KeyEventArgs e) {
+        if (e.KeyCode == Keys.Enter) {
+            btnLogin_Click(sender, EventArgs.Empty);
+            e.SuppressKeyPress = true;  // 이벤트 처리 완료(키 입력 시 ding 사운드가 재생되는 것을 방지)
+        }
+    }
+
     // [로그인] 버튼 클릭
     private async void btnLogin_Click(object sender, EventArgs e) {
         // 텍스트박스 빈칸 확인
